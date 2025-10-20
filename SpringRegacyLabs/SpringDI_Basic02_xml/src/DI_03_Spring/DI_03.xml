@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans  xmlns="http://www.springframework.org/schema/beans"
+	    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	    xsi:schemaLocation="http://www.springframework.org/schema/beans 
+	                        http://www.springframework.org/schema/beans/spring-beans.xsd">
+<!-- 
+	객체의 생성 과 조립 > xml 파일에서 
+	(기존 new .... setter 주입 : main 함수) > spring 에게 ....
+	
+	Spring regacy에서 객체의 생성과 조립(주입 DI) 설정은 2가지
+	1. xml파일
+	2. @configuration 설정을 가지고 있는 java파일
+	<bean> 태그는 new와 같은 것
+	id는 변수이름정도
+	class는 실제 클래스 경로(스프링 빈으로 관리할 클래스 경로 등록)
+	그럼 객체가 만들어지고 그 객체의 이름은 id값으로 만들어짐
+	
+	MessageBean messageBean = new MessageBean_kr();
+	이거와 같음
+ -->
+	<bean id="messageBean" class="DI_03_Spring.MessageBean_en"></bean>
+</beans>

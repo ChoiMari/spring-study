@@ -1,0 +1,149 @@
+DI 개념 : 의존성 주입(의존 객체의 주소 전달)
+
+프로젝트 >>  수 많은 클래스 생성 >> 클래스들간의 관계 성립 
+
+1. 상속(is ~ a)
+2. 포함(has ~ a)
+
+A 라는 클래스는  B라는 클래스가 필요해
+
+프로그래밍 적인 사고 (A는 B의 자원을 사용하겠다)
+
+class A extends B {}
+
+class A {
+   B b = new B();
+}
+main> A a = new A();   a.b.자원
+---------------------------------------
+class A {
+  B b;
+  A(){
+     b = new B(); //초기화 생성자    //복합
+  }
+}
+main> A a = new A();   a.b.자원
+--------------------------------------
+class A {
+   B b;
+   A(B b){
+      this.b = b;  //집합
+   }	
+}
+main>B b = new B();   A a = new A(b);
+-------------------------------------
+class A {
+   B b;
+   A(){}
+   
+   void setB(B b){
+      this.b  =b;
+   }
+}
+main> A a = new A() 놀다가 .... 필요하면  B b = new B();  a.setB(b); 주입 (setter 함수)
+------------------------------------
+예제에서  나는 니가 필요해 (나는 너의 주소가 필요해)
+NewRecordView 클래스는 NewRecord 의존한다 (포괄적인 ...필요해)
+------------------------------------
+DI (의존성 주입) : Spring 학습 처음 나오는 개념
+result : 필요한 객체의 주소를 [생성자] 통해서 또는  [setter] 함수를 통해서 주입 받겠다
+------------------------------------------------------------------------------------
+
+[DI개념]_2 : 의존성 주입 (의존 객체 주입)
+-NewRecordView 클래스는 필요로 하는 객체를  setter 함수를 통해서 주입(주소를) 받아서 사용
+-객체의 생성이 서로 독립적  >> 필요시에 객체를 주입을 받을 수 있다
+ NewRecordView view = new NewRecordView();
+ NewRecord record = new NewRecord(100, 50, 50);
+-두 객체의 lifecycle 은 같지 않다 >> 집합 연관
+
+--------------------------------------------------------------------------------- 
+시나리오
+class A , class B
+A라는 클래스가 B 클래스를 사용하는 방법
+
+1. 상속(is~a) >> Spring FrameWork 에서는 관심이 없어요
+
+2. 포함 (has-a)  > 내 클래스안에 다른 클래스가 들어오는 것
+ 2.1 [생성자]를 주입 (constuctor injection)
+ >> main 함수 >> A a = new A();
+ 
+ class A { B b;   A(){ this.b = new B(); }  }
+ 
+ >A라는 클래스의 생성자에서 B라는 객체 생성 사용 (복합연관)
+ 
+ 2.2 setter 함수를 통합 주입 (setter injection)
+ >> main함수 >> A a = new A(); B b = new B();   a.SetB(b);
+ 
+ class A {B b; A(){}; public void SetB(B b){this.b = b;}}
+
+Result : SpringFramework 은 다른 객체의 의존(참조) 하기 위해서 
+생성자주입(constuctor injection) , setter(setter injection) 주입 2가 방법을 통해서 구현
+기술를 통칭해서 >> DI(dependency injection) >> 의존성 주입 ^^
+
++알파 >> interface 들어가면 금상첨화  >> 다형성 >> 느슨한 구조 구현....
+
+정리)
+1. 생성자를 통해서 주입 (의무적인)
+2. setter 함수를 통해서 주입 (필요에 따라서)
+3. 다형성(인터페이스) 활용 ... (생성자 , setter 함수) 인터페이스 활용 
+--------------------------------------------------------------------------
+Spring Framework 사용
+
+1. Spring.io 사이트 방문 
+1.1 사용할려는 spring 버전을 확인하고 다운로드 
+
+구버전: 다운로드 지원
+https://repo.spring.io/ui/native/release/org/springframework/spring
+수업이니까  다운로드를 받아서 프로젝트에 추가해서 사용
+강사 PC 에서 다운로드
+
+
+
+현실은 현업(Maven) : 사이트 >> 필요로 하는 다양한 jar 가지고 있어요 >> 프로젝트시 >> 사이트에서 다운로드
+주소를 복사해서 pom.xml 파일에 붙여 넣으면 자동으로 다운로드 (인터넷이 된다는 보장하에)
+<!-- https://mvnrepository.com/artifact/org.springframework/spring-core -->
+<dependency>
+    <groupId>org.springframework</groupId>
+    <artifactId>spring-core</artifactId>
+    <version>5.3.6</version>
+</dependency>
+
+비교)
+git  : remote (github)
+git  : local 저장소(commit)  : 폴더 git init
+
+비교)
+maven : https://mvnrepository.com   (원격저장소 : 많은 회사가 자신이 만든 수 많은 jar 파일을 upload)
+maven : local 자동 생성 C:\Users\82108\.m2\repository   필요한 jar 파일을 다운 받는다
+
+프로젝트 빌드 , 배포 도구(소프트웨어) >> gradle  , maven (프로젝트 생성 빌드 배포 소프트웨어)
+------------------------------------------------------------------------------
+실습
+다운받은 받는 SpringFrameWork jar 파일 사용
+C:\Spring\FrameWork\spring-5.3.6-dist\spring-framework-5.3.6\libs
+의존하는 lib 필요해요
+
+spring-framework-3.0.2.RELEASE-dependencies  다운로드 받아서 가지고 있어요
+
+------------------------------------------------------------------------------
+1. SpringFrameWork 핵심 엔진 (lib)
+core
+context
+beans
+expression
+jar 파일 참조 추가
+
+2.설정하기
+2.1 xml 파일 설정 (DIConfig.xml)
+2.2 annotation 설정(권장) ...혹자는 spring  은  annotation의 싸움이다
+
+result : 객체의 생성과 조립 (xml 설정을 통해서) >> IOC (제어의 역전)
+
+
+기존)
+어떤 객체가 필요하면 직접
+Emp emp = new Emp() 사용했는데
+스프링에서는
+xml 또는 annotation 을 통해서 미리 객체를 생성해 놓고 사용합니다
+
+>> 미리 모든 부품을 만들고 놓고 조립만 해라 그리고 사용해라 (스프링)

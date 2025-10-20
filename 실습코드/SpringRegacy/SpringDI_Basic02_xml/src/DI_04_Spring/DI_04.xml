@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans  xmlns="http://www.springframework.org/schema/beans"
+	    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	    xsi:schemaLocation="http://www.springframework.org/schema/beans 
+	                        http://www.springframework.org/schema/beans/spring-beans.xsd">
+<!-- 
+	MessageBeanImpl messageBeanImpl = new MessageBeanImpl("hong"); //생성자 값 주입(String)
+	messageBeanImpl.setGreeting("Hello"); //setter 함수를 통해서 값 주입(String)  > DI(의존성 주입)
+
+	객체의 생성과 조립
+	1. 생성자 주입
+	2. setter 주입  
+ 
+    <bean id="식별자 이름" name="m1,m2 m3;m4"
+    name 구분값 > ,   공백    ;  인정   > 별칭
+ -->
+	<bean id="messageBeanImpl"  name="m1,m2 m3;m4" class="DI_04_Spring.MessageBeanImpl">
+	<!-- 
+		<constructor-arg>
+			<value>hong</value>
+		</constructor-arg>
+		
+		property name="" 이름은 setGreeting  구현하고 있는  member field  명
+	
+		<property name="greeting">
+			<value>hello</value>
+		</property>
+	 -->	
+	 	<constructor-arg value="hong" />
+	    <property name="greeting" value="world" />
+	</bean>
+</beans>

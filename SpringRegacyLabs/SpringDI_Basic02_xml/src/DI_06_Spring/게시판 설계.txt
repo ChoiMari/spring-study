@@ -1,0 +1,30 @@
+MVC 패턴
+
+Model  (dto(vo) , dao , service)
+
+
+View  (jsp(EL&JSTL) , html(타임리프  template))
+
+
+Controller (servlet)
+
+
+클라이언트 요청 > controller > service > dto , dao > service > controller > view > forward >  응답
+
+1. 요구사항
+DB 2개 사용 : oracle, mysql
+
+태이블
+create table Article()
+---------------------------------------
+model > dto (Article)
+model > dao > oracle , mysql > OracleDao , MySqlDao
+이럴때 둘 다 동일한 함수를 쓰고 싶으면 ArticleDao interface > 추상함수를 사용 
+OracleDao 에서 구현 
+MySqlDao  에서 구현하면된다 
+약간의 표준화 인터페이스 구현
+
+service 단 DAO 사용 
+
+>> [ service 는 ArticleDao에 의존한다 ] 문장을 이해 코드화 ...목적 
+생성자로 받거나 setter로 받겠다.

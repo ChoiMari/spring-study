@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans  xmlns="http://www.springframework.org/schema/beans"
+	    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	    xsi:schemaLocation="http://www.springframework.org/schema/beans 
+	                        http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+	<bean class="Spring_DI4.NewRecord" id="record"></bean>
+	<!-- 
+		NewRecord record = new NewRecord() 자동 ...
+	 -->
+	 
+	
+	<bean class="Spring_DI4.NewRecordView" id="view">
+		<property name="record" ref="record" ></property>
+	</bean>	
+	 <!-- 
+	 	NewRecordView view = new NewRecordView();
+	 	view.setRecord(record)
+	 
+	    property name="record"  .. setRecord 를 구현한고 있는  member field 명
+	  -->	
+</beans>

@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans  xmlns="http://www.springframework.org/schema/beans"
+	    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	    xsi:schemaLocation="http://www.springframework.org/schema/beans 
+	                        http://www.springframework.org/schema/beans/spring-beans.xsd">
+<!-- 
+	객체의 생성과 조립
+	1. 생성자 주입
+	2. setter 주입  
+ 
+ 	spring 은 자신만의 컨테이너를 제공 ( spring 사용하는 전용 메모리 공간) 안에
+ 	xml 또는 annotation 를 통해서 객체를 생성하고 조립하는 과정을 수행  (객체 관계 설정)
+ 	
+ 	컨테이너 안에 생성된 객체를 불러서 .... 함수 : getbean() 함수 (불러서 사용) > 객체를 생성하는 함수가 아니다**
+ 	
+ 	예외적으로 getbean() 사용하면 그때마다 새로운 객체가 생성되게 할 수 있어요 ( 권장하지 않아요) >>>>지우개
+ 	
+ 	IOC 컨테이너 (제어의 역전)
+ 	내가 주도했던 new 키워드를 사용하지 않고 ... Spring 양보 ... Spring 주도(객체의 생성과 죽음)
+ 	:작은 단위의 부품을 만들어 놓고 조립하고 .... 행위 > Spring > 필요하면 가져도 쓰면 되요
+ 	
+ 	
+ 		MyBean myBean = new MyBean();
+		MyBean myBean2 = new MyBean("hong");
+		MyBean myBean3 = new MyBean();
+		
+		
+		Singleton singleton  = Singleton.getInstance();
+		Singleton singleton2 = Singleton.getInstance();
+		Singleton singleton3 = Singleton.getInstance();
+ -->
+	<bean id="myBean" class="DI_05_Spring.MyBean"></bean>
+	<bean id="myBean2" class="DI_05_Spring.MyBean">
+		<constructor-arg value="hong"></constructor-arg>
+	</bean>
+	<bean id="myBean3" class="DI_05_Spring.MyBean"></bean>
+	
+	<!-- 
+		3.x.x 버전 factory-method="getInstance"
+		4.x.x 버전 이후 factory-method="getInstance" 쓰지 않아도 ... 알아서 ... Single 클래스 인지
+	 -->
+	 <bean id="single" class="DI_05_Spring.Singleton" factory-method="getInstance" />
+</beans>

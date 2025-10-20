@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans  xmlns="http://www.springframework.org/schema/beans"
+	    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	    xsi:schemaLocation="http://www.springframework.org/schema/beans 
+	                        http://www.springframework.org/schema/beans/spring-beans.xsd">
+<!-- 
+	객체의 생성 과 조립 > xml 파일에서 
+	(기존 new .... setter 주입 : main 함수) > spring 에게 ....
+
+	MessageBean messageBean = new MessageBean_kr();
+ -->
+	<bean id="messageBean" class="DI_03_Spring.MessageBean_en"></bean>
+</beans>

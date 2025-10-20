@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans 
+	                    http://www.springframework.org/schema/beans/spring-beans.xsd
+		                http://www.springframework.org/schema/context 
+		                http://www.springframework.org/schema/context/spring-context-4.3.xsd">
+<!-- 
+	객체의 생성과 조립
+	1. 생성자 주입
+	2. setter 주입  
+ 
+    KEY POINT
+    xml 설정 파일에 Spring 제공하는 Context 자원 사용
+    xmlns:context="http://www.springframework.org/schema/context"
+    xsi:schemaLocation="http://www.springframework.org/schema/context 
+		                http://www.springframework.org/schema/context/spring-context-4.3.xsd">
+ 
+ 
+ 
+ 	spring 은 자신만의 컨테이너를 제공 ( spring 사용하는 전용 메모리 공간) 안에
+ 	xml 또는 annotation 를 통해서 객체를 생성하고 조립하는 과정을 수행  (객체 관계 설정)
+ 	
+ 	컨테이너 안에 생성된 객체를 불러서 .... 함수 : getbean() 함수 (불러서 사용) > 객체를 생성하는 함수가 아니다**
+ 	
+ 	예외적으로 getbean() 사용하면 그때마다 새로운 객체가 생성되게 할 수 있어요 ( 권장하지 않아요) >>>>지우개
+ 	
+ 	IOC 컨테이너 (제어의 역전)
+ 	내가 주도했던 new 키워드를 사용하지 않고 ... Spring 양보 ... Spring 주도(객체의 생성과 죽음)
+ 	:작은 단위의 부품을 만들어 놓고 조립하고 .... 행위 > Spring > 필요하면 가져도 쓰면 되요
+ 	
+ 	자바코드를 설정으로 ....
+ 	MonitorViewer  monitorViewer = new MonitorViewer();
+	Recorder recorder = new Recorder();
+	monitorViewer.setRecorder(recorder);  
+		
+ 		
+ -->
+	<!-- xml bean 객체생성 과 주입 -->
+	<!--  
+	<bean id="recorder"  class="DI_Annotation_01.Recorder"></bean>
+	<bean id="monitorViewer"  class="DI_Annotation_01.MonitorViewer">
+			<property name="recorder">
+		  			<ref  bean="recorder" />
+		  	</property>
+	</bean>
+	-->
+	<!-- 
+		@Autowired > Type기반
+		목적 : 의존관계를 [자동설정]할 때 사용하며 [타입을 이용]하여 의존하는 객체를 삽입해 준다. 
+		그러므로 (IOC Container) 해당 타입의 빈객체가 존재하지 않거나 또는 2개 이상 존재할 경우 
+		스프링은 예외를 발생시키게 된다.
+		
+		설정 위치 : 생성자, 필드, 메소드(굳이 setter메소드가 아니여도 된다)
+		import org.springframework.beans.factory.annotation.AutowiredAnnotationBeanPostProcessor;
+        IOC Container bean 객체로 등록되어 있어야 >> @Autowired 사용가능
+        *추가설정 : AutowiredAnnotationBeanPostProcessor 클래스를 빈으로 등록시켜줘야 한다. 
+        
+        하지만 
+        해당 설정 대신에 <context:annotation-config> 태그를 사용해도 된다. 
+        알아서 AutowiredAnnotationBeanPostProcessor 빈 객체로 자동 등록
+        
+        예외상황
+        1. 컨테이너안에 같은 타입객체가 여러개 존재하는 경우
+        org.springframework.beans.factory.NoUniqueBeanDefinitionException:
+         No qualifying bean of type 'DI_Annotation_01.Recorder' available: 
+        expected single matching bean but found 3: a,b,c
+        
+        2. 컨테이너안에 맞는 타입 객체가 없는 경우
+         org.springframework.beans.factory.NoSuchBeanDefinitionException: 
+         No qualifying bean of type 'DI_Annotation_01.Recorder' available:
+          expected at least 1 bean which qualifies as autowire candidate. Dependency annotations: {}
+	 
+	 	3. 같은 타입의 빈객체가 여러개 있어도 id 값이 setter 함수 parameter  명과 동일하면 자동 주입 성공
+	 -->
+	<context:annotation-config /><!-- <context:annotation-config />이걸 쓰면 @Autowired에 필요한 선행 객체를 다 만들어 놓는다 -->
+	<bean id="recorder"  class="DI_Annotation_01.Recorder"></bean>
+	<bean id="monitorViewer"  class="DI_Annotation_01.MonitorViewer"></bean>
+    <!-- 같은 타입 여러개이면.. 예외터짐..id값이 파라미터 이름과 같으면 허용한다? -->
+    <bean id="a"  class="DI_Annotation_01.Recorder"></bean>
+	<bean id="b"  class="DI_Annotation_01.Recorder"></bean>
+	<bean id="c"  class="DI_Annotation_01.Recorder"></bean>
+</beans>
+
+
+
+
+
+
+
+
+
+
+
+
