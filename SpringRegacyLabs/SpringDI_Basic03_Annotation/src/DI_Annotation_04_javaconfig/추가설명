@@ -1,29 +1,36 @@
 spring 통해서 (객체의 생성 과 조립(injection))
 
-​1. xml 설정을 통해서 (bean 생성 , injection)
-2. xml 문서 없이도 지금과 같은 동일 작업 가능 
+​1. xml 설정을 통해서 (bean 생성하고 , injection 주입함 - setter, 생성자)
+2. xml 문서 없이도 지금과 같은 동일 작업 가능 ! 자바파일에 어노테이션 사용!
    >> 자바코드 이용해서 설정 작업(JAVA 파일 + Annotation)
-   >> xml 파일 (x)
+   >> xml 파일 없어도 된다
+   그래서 부트에서는 xml설정을 없애버림
+   프로퍼티스 또는 yml씀
 
 ​
 3. 기존 xml :
 new GenericXmlApplicationContext("classpath:DI_Annotation_04/DI_Annotation_04.xml");
 
 ​
-  현재 java :
+  현재 java : 스프링 메모리 공간을 만들고 클래스 메타데이터 컴파일러에게 정보 제공함
 new AnnotationConfigApplicationContext(ConfigContext.class);   
 =>ConfigContext.java >> xml 대체  >>bean 만들고 injection 방법 >> Annotation
 
 ​
-
+** 외우기 !!!!!!!!
 사용 어노테이션은
 1.  @Configuration :해당 클래스가 [스프링의 설정]으로 사용됨을 지정 (xml을 대체 할 거야)
-    ex)
+    ex) //-> 너는 설정 파일이라고 컴파일러에게 알려주는 역할 xml과 같은 역할 하는거다
+    // 너는 객체를 만들고 필요한 객체를 주입하는 파일이야
+    
+    사용 예시 코드
     @Configuration
     public class configcontext {}
 
 ​
-
+스프링에서는 new를 안씀
+쓰는 경우는 요청에 따른 데이터가 달라야 할 떄 메서드 안에서 new로 생성함
+멤버 필드로 사용하면 안됨(동시성 덮어쓰는 문제)
 2.  @Bean
     ex)
     @Configuration
@@ -54,17 +61,25 @@ class MemberRegisterService{
    }
 }
 
+해석해보기
+MemberRegisterService 동작하기 위해서는 MemberDao가 필요함
+MemberDao의 주소가 필요합니다
+주소를 받는 방법을 생성자로 받을거다.(생성자로 의존성 주입)
+주소를 받으려면 방법이 2가지
+xml설정 또는 에노테이션 사용(@컨피겨레이션 & @bean)
+
+
 
 
 
 
 1. xml 설정
-<bean id="memberdao" class="MemberDao" />
+<bean id="memberdao" class="MemberDao" /> //주입받아야하고 컨테이너에 있어야함
 <bean id="memberRegSvc" class="MemberRegisterService">
-     <constructor-arg  ref="memberdao">
+     <constructor-arg  ref="memberdao"> //생성자로 주입
 </bean>
 
-
+여기에서 @Autowired 적용한다고 하면
 ​
 
  1.1 추가 : @Autowired 적용
@@ -77,9 +92,9 @@ class MemberRegisterService{
    }
 
 }   
-
+코드 상에서는 이렇게 쓰고 xml문서에서는 밑과 같이 사용 - xml파일에서 생성자 주입이 빠짐
 xml 문서
-<context:annotation-config />   
+<context:annotation-config />   <!--이게 추가 -->
 <bean id="memberRegSvc" class="MemberRegisterService"></bean>
 <bean id="memberdao" class="MemberDao" />   
 
@@ -93,24 +108,24 @@ xml 문서
    두개의 어노테이션을 이용해서 (java 코드 기반의 작업)
 
    
-@Configuration
+@Configuration // 설정파일이라고 컴파일러에게 알려줌
 class Configcontext{
 
-         @bean
+         @bean //객체 생성
          public MemberRegisterService memberRegSvc(){
-           return new MemberRegisterService(memberdao()); //함수를 통한 주입
+           return new MemberRegisterService(memberdao()); //메서드를 통한 주입(memberdao()) 
+           // 이 부분
          } 
 
-         @bean
+         @bean //객체 생성
          public MemberDao memberdao(){
           return new MemberDao();
          }
 
    }
  
-
-
-
+// 객체 생성 2개함(@bean을 통해서)
+// 주입은 return new MemberRegisterService(memberdao()); //메서드를 통한 주입(memberdao()) 
 
 -------------------------------------------------------------
 옵션 :
@@ -129,5 +144,10 @@ public board m(){
 public board m(){
   return new board();
 }
+
+
+------
+어노테이션 중요한거 외우기
+
 
 ​

@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans 
+                           http://www.springframework.org/schema/beans/spring-beans.xsd
+                           http://www.springframework.org/schema/context 
+                           http://www.springframework.org/schema/context/spring-context.xsd">
+<!-- @오토와이얼드 사용에 필요한 선행 객체 생성 태그 -->
+<context:annotation-config />
+
+<!-- Test_1 -->
+<!-- 
+@Controller어노테이션을 붙였다고 해서 자동으로 관리하는 빈 객체가 되지는 않아서
+컨테이너에서 bean 객체로 등록해야함
+원래 name 속성(또는 id)이 매핑 url이었는데(예시 <bean name="/list.do"> 또는 <bean id="/notice/list.do") 이건 근데 우선순위낮음
+이제는 @리퀘스트 매핑으로 설정해서 의미가 없어지고(@RequestMapping이 완전히 그 자리를 대체 -  @RequestMapping 처리 (가장 우선))
+그냥 id식별자로 설정 사용함 관습은 클래스이름을 소문자로 시작해서 작성(관습)
+
+핸들러매핑은 모든클래스를 뒤지고(메서드를)
+클라이언트요청과 일치하는 메서드를 찾으면 실행함
+
+ -->
+ <bean id="helloController" class="com.controller.HelloController"></bean>
+
+<!-- TEST_2 
+	하나의 요청 주소인데, 메서드로 판단해서, 
+	get방식일 때의 처리(화면 처리)
+	post방식일 때의 처리(로직 처리)를 다르게 하겠다
+	
+-->
+<!-- 객체 생성할 클래스 이름 적는다(패키지 포함) - 오타 있으면 안됨 -->
+	<bean class="com.controller.NewArticleController"></bean>
+	<bean class="com.service.ArticleService"></bean>
+
+<!-- Test_3에 필요한 bean객체 등록 -->
+	<bean class="com.controller.OrderController"></bean>
+
+<!-- 뷰 리졸브 설정, 뷰이름의 앞뒤설정 -->
+	<bean id="internalResourceViewResolver"
+		class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+		<property name="prefix">
+			<value>/WEB-INF/views/</value>
+		</property>
+		<property name="suffix">
+			<value>.jsp</value>
+		</property>
+	</bean>
+
+</beans> 
+
+

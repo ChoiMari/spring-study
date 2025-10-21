@@ -17,7 +17,9 @@ public class MonitorViewer {
 	 
 	 */
 	
-	private Recorder recorder;
+	private Recorder recorder; //주입받고 싶음
+	//컨테이너 안에 같은 타입의 객체가 있다면 주소값을 갖겠다.
+	
 
 	/*
 	 @Autowired 있으면  (By Type)
@@ -25,8 +27,9 @@ public class MonitorViewer {
 	 있다면 .... 그 객체의 주소를 setRecorder(Recorder recorder)  주입
 	 
 	 <property name="recorder">
-		  			<ref  bean="recorder" />
+		 <ref  bean="recorder" />
 	 </property> 
+	 //요즘 xml설정은 많이 없어졌다. 어노테이션을 이용해서 사용(그게 편리하니까)
 	 
 	  @Autowired(required = true) >> default >> 무조건 >> injection
 	  @Autowired(required = false)>> 있으면 주입 없으면 그냥 ... 삽입하지 않아요(이런 코드는 안쓴다) 
@@ -40,7 +43,11 @@ public class MonitorViewer {
 	// 레코드 타입이 여러개이면 뭘 찾을까? 이것도 예외가 터진다
 	// 이건 타입 기반으로 찾는거라서... 그래서 태그안에 우선순위 지정하는거나
 	// id로 찾게끔 설정함
-	@Autowired
+	@Autowired //컨테이너에 올라갈때 이걸 해석해서 컨테이너안에서 뒤져서 있으면 주입한다
+	// 옵션에 따라서 예외가 날 수 도 있다.
+	//@Autowired(required = true)  무조건 넣겠다는 뜻(옵션 기본값 true)
+	// 컨테이너안에 레코드 타입이 없으면 예외 NoSuchBeanDefinitionException
+	// -> 일치하는 bean이 없다.(스프링컨테이너에)
 	public void setRecorder(Recorder recorder) {
 		this.recorder = recorder;
 	}

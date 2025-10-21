@@ -1,0 +1,84 @@
+
+
+1. spring-web
+2. spring-webmvc   jar 파일 추가
+
+3. 기본적입 web작업 가능 
+--------------------------------------------------------------------------
+4. model2 기반의 MVC 학습
+
+Model
+
+View
+
+지난 시간에는 servlet으로 프론트 컨트롤러 만들어서 처리했음
+Controller : servlet (FrontController) > doGET(), doPOST() > /sample > *.do
+> 모든 요청 받아서 command 또는 url방식으로 처리했음
+> command  > cmd=list , cmd=insert
+> url      > /list.do  , /insert.do
+
+이거 그대로 스프링으로 가져옴
+----------------------------------------------------------------------------
+5. Spring Web (MVC 패턴)
+스프링도 mvc패턴 사용
+
+Model : java(모델 단 java로 만듬)
+View  : JSP(레거시에서는 jsp, 스프링부트는 타임리프 등)
+Controller : FrontController 개발자가 직접 ..... ? 
+어차피 프론트 컨트롤러 필요하지? 스프링이 만들어줌
+디스패처 서블릿이라는 이름의 프론트 컨트롤러를 제공함
+스프링에서는 개발자가 프론트 컨트롤러 역할을 하는 프론트 컨트롤러를 만들필요가 없음
+> DispatcherServlet (FrontController servlet) 제공
+-----------------------------------------------------------------------------
+
+1. 일반 Spring 작업
+1.1 컨테이너 만들고 xml , java 설정 을 통해서 객체를 생성하고 조립 ... 
+
+2. SpringWeb은 눈에 보이지 않을 뿐..
+2.1 컨테이너 만들고  xml 설정을 통해서 객체를 만들고 조립한다.
+
+웹이 실행 되려면 웹서버가 필요함 
+웹 서버안에 서비스 파일들이 들어있어야함 통칭해서 WAS 또는 컨테이너라고 부름
+3. WEB 
+3.1 Tomcat (WAS) 서버 실행
+3.1 클라이언트 요청 ( hello.do )  http://192.168.4.154:8090/Web/hello.do 이게 요청 url
+
+스프링 설정 잡기 web.xml여기에 디스패처서블릿이 들어있음
+web.xml이 가장먼저읽어지는 파일 모든세팅이 들어있음 여기가 잘못되면 서버 켜지지도 않음
+스프링에 있는 디스패처 서블릿을 메모리에 올림. 언제 올려?
+무조건이 아님 준비하고 있다가 클라이언트의 요청이 web.xml에 설정해둔 
+서블릿 매핑시킨 url패턴 태그에 해당되면
+서블릿 네임 이름과 서블릿 매핑 서블릿 네임과 같아야 url패턴에 해당되는 순간
+디스패처 서블릿 객체가 생성됨(프론트 컨트롤러 역할)
+web은 직접 new하지 않음 자동으로new해서 생성함
+이 공간이 컨테이너. 스프링 메모리.  
+그 컨테이너 안에 생성될 객체 주입을 무엇으로 하냐? 앞에서는 new 제네릭어플리케이션컨텍스트()로 했음
+약속을함 무슨약속? 가지고 있는 서블릿 네음과 같은 이름으로 xml파일을 만들면,
+그리고 그 뒤에 -servlet.xml을 붙이면 자동으로 읽어 내겠다.
+spring-sevlet.xml파일 //-> 만약 web.xml에 <sevlet-name>을 xxx로 하면 xxx-sevlet.xml으로 해야 자동으로 읽어짐
+web.xml에서 설정한 디스패처서블릿을 매핑시킨 서블릿 네임-sevlet.xml 
+3.2 Sprinbg <url-pattern>*.do</url-pattern> 
+    **DispatcherServlet 실행(컴파일) > POINT IOC 컨테이너가 생성 
+3.3 객체 생성 주입....spring-servlet.xml read 해서 객체 생성하고 주입 (자동 생성된 컨테이너 안에)    
+3.4 약속 ...xml 파일 생성  *-servlet.xml >> 별칭 > aaaa-servlet.xml 
+    <servlet-name>aaaa</servlet-name>  약속을 지키면
+3.5 컨테이너 생성되고 그안에  aaaa-servlet.xml  read  해서 객체 생성 하고 주입 
+ 
+3.6 hello.do 요청에 대해서 handler mapping  작업 > 컨테이너 안에서 > id="/hello.do" > 그 객체의 > 
+    public ModelAndView handleRequest 자동으로 실행 
+
+3.7 ModelAndView  데이터 담기 , view 지정하기  리턴 
+3.8 컨테이너 안에 internalResourceViewResolver 구현되어 있다면 뷰를 완성 ..... 
+
+3.9 view 에서     ModelAndView 담긴 데이터 전달 
+3.10 Hello.jsp (EL & JSTL) 화면에 출력
+
+4. 클라이언트에게 응답 
+    
+   
+    
+
+------------------------------------------------------------------------------------------
+ ApplicationContext context = 
+				new GenericXmlApplicationContext("classpath:DI_Annotation_02/DI_02.xml");
+------------------------------------------------------------------------------------------

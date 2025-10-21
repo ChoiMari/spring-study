@@ -1,0 +1,59 @@
+
+
+1. spring-web
+2. spring-webmvc   jar 파일 추가
+
+3. 기본적입 web작업 가능 
+--------------------------------------------------------------------------
+4. model2 기반의 MVC 학습
+
+Model
+
+View
+
+Controller : servlet (FrontController) > doGET(), doPOST() > /sample > *.do
+> 모든 요청 받아서 
+> command  > cmd=list , cmd=insert
+> url      > /list.do  , /insert.do
+----------------------------------------------------------------------------
+5. Spring Web (MVC 패턴)
+
+Model : java
+View  : JSP
+Controller : FrontController 개발자가 직접 ..... ? > DispatcherServlet (FrontController servlet) 제공
+-----------------------------------------------------------------------------
+
+1. 일반 Spring 작업
+1.1 컨테이너 만들고 xml , java 설정 을 통해서 객체를 생성하고 조립 ... 
+
+2. SpringWeb 
+2.1 컨테이너 만들고  xml 설정을 통해서 객체를 만들고 조립 ....
+
+3. WEB
+3.1 Tomcat (WAS) 서버 실행
+3.1 클라이언트 요청 ( hello.do )  http://192.168.4.154:8090/Web/hello.do
+3.2 Sprinbg <url-pattern>*.do</url-pattern> 
+    **DispatcherServlet 실행(컴파일) > POINT IOC 컨테이너가 생성 
+3.3 객체 생성 주입....spring-servlet.xml read 해서 객체 생성하고 주입 (자동 생성된 컨테이너 안에)    
+3.4 약속 ...xml 파일 생성  *-servlet.xml >> 별칭 > aaaa-servlet.xml 
+    <servlet-name>aaaa</servlet-name>  약속을 지키면
+3.5 컨테이너 생성되고 그안에  aaaa-servlet.xml  read  해서 객체 생성 하고 주입 
+ 
+3.6 hello.do 요청에 대해서 handler mapping  작업 > 컨테이너 안에서 > id="/hello.do" > 그 객체의 > 
+    public ModelAndView handleRequest 자동으로 실행 
+
+3.7 ModelAndView  데이터 담기 , view 지정하기  리턴 
+3.8 컨테이너 안에 internalResourceViewResolver 구현되어 있다면 뷰를 완성 ..... 
+
+3.9 view 에서     ModelAndView 담긴 데이터 전달 
+3.10 Hello.jsp (EL & JSTL) 화면에 출력
+
+4. 클라이언트에게 응답 
+    
+   
+    
+
+------------------------------------------------------------------------------------------
+ ApplicationContext context = 
+				new GenericXmlApplicationContext("classpath:DI_Annotation_02/DI_02.xml");
+------------------------------------------------------------------------------------------
