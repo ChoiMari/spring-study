@@ -6,37 +6,57 @@
                            http://www.springframework.org/schema/beans/spring-beans.xsd
                            http://www.springframework.org/schema/context 
                            http://www.springframework.org/schema/context/spring-context.xsd">
-<!-- @오토와이얼드 사용에 필요한 선행 객체 생성 태그 -->
-<context:annotation-config />
+	<!-- @오토와이얼드 사용에 필요한 선행 객체 생성 태그 -->
+	<context:annotation-config />
 
-<!-- Test_1 -->
-<!-- 
-@Controller어노테이션을 붙였다고 해서 자동으로 관리하는 빈 객체가 되지는 않아서
-컨테이너에서 bean 객체로 등록해야함
-원래 name 속성(또는 id)이 매핑 url이었는데(예시 <bean name="/list.do"> 또는 <bean id="/notice/list.do") 이건 근데 우선순위낮음
-이제는 @리퀘스트 매핑으로 설정해서 의미가 없어지고(@RequestMapping이 완전히 그 자리를 대체 -  @RequestMapping 처리 (가장 우선))
-그냥 id식별자로 설정 사용함 관습은 클래스이름을 소문자로 시작해서 작성(관습)
+	<!-- Test_1 -->
+	<!-- @Controller어노테이션을 붙였다고 해서 자동으로 관리하는 빈 객체가 되지는 않아서 컨테이너에서 bean 객체로 등록해야함 
+		원래 name 속성(또는 id)이 매핑 url이었는데(예시 <bean name="/list.do"> 또는 <bean id="/notice/list.do") 
+		이건 근데 우선순위낮음 이제는 @리퀘스트 매핑으로 설정해서 의미가 없어지고(@RequestMapping이 완전히 그 자리를 대체 - 
+		@RequestMapping 처리 (가장 우선)) 그냥 id식별자로 설정 사용함 관습은 클래스이름을 소문자로 시작해서 작성(관습) 
+		핸들러매핑은 모든클래스를 뒤지고(메서드를) 클라이언트요청과 일치하는 메서드를 찾으면 실행함 -->
+	<bean id="helloController" class="com.controller.HelloController"></bean>
 
-핸들러매핑은 모든클래스를 뒤지고(메서드를)
-클라이언트요청과 일치하는 메서드를 찾으면 실행함
-
- -->
- <bean id="helloController" class="com.controller.HelloController"></bean>
-
-<!-- TEST_2 
-	하나의 요청 주소인데, 메서드로 판단해서, 
-	get방식일 때의 처리(화면 처리)
-	post방식일 때의 처리(로직 처리)를 다르게 하겠다
-	
--->
-<!-- 객체 생성할 클래스 이름 적는다(패키지 포함) - 오타 있으면 안됨 -->
+	<!-- TEST_2 하나의 요청 주소인데, 메서드로 판단해서, get방식일 때의 처리(화면 처리) post방식일 때의 처리(로직 
+		처리)를 다르게 하겠다 -->
+	<!-- 객체 생성할 클래스 이름 적는다(패키지 포함) - 오타 있으면 안됨 -->
 	<bean class="com.controller.NewArticleController"></bean>
 	<bean class="com.service.ArticleService"></bean>
 
-<!-- Test_3에 필요한 bean객체 등록 -->
+	<!-- Test_3에 필요한 bean객체 등록 -->
 	<bean class="com.controller.OrderController"></bean>
 
-<!-- 뷰 리졸브 설정, 뷰이름의 앞뒤설정 -->
+	<!-- Test_4에 필요한 bean객체 등록 -->
+	<bean class="com.controller.SearchController"></bean>
+
+	<!-- Test_5에 필요한 bean객체 등록 -->
+	<bean class="com.controller.CookieController"></bean>
+
+	<!-- Test_6에 필요한 bean객체 등록 -->
+	<bean class="com.controller.ImageController"></bean>
+
+	<!-- 파일 업로드 정책 설정 -->
+	<!-- TEST_6 파일 업로드 CommonsMultipartResolver : 업로드 파일 관리함, 파일의 정책을 설정가능하다.(크기, 
+		이름, 중복 이름 등 정책) CommonsMultipartResolver가 파일을 읽고 쓰고 할수있는 작업 위해서는 jar파일 2개가 
+		필요하다 -->
+	<!-- import org.springframework.web.multipart.commons.CommonsMultipartResolver; 
+		import org.springframework.web.multipart.commons.CommonsMultipartFile; CommonsMultipartFile 
+		사용해서 업로드를 할려면 몇가지 기본 세팅 CommonsMultipartResolver : 업로드한 파일에 대한 정보 관리(크기 , 
+		이름....) 파일 처리 (의존 객체) //C:\Spring\Framework\spring-framework-3.0.2.RELEASE-dependencies\org.apache.commons\com.springsource.org.apache.commons.fileupload\1.2.0 
+		com.springsource.org.apache.commons.fileupload-1.2.0.jar com.springsource.org.apache.commons.io-1.4.0.jar 
+		CommonsMultipartResolver : 업로드한 파일에 정보 관리(크기 , 이름 , 중복이름 정책) -->
+	<!-- <property name="uploadTempDir" value="uploadTempDir"/> <bean id="uploadTempDir" 
+		class="org.springframework.core.io.FileSystemResource"> <constructor-arg 
+		value="c:/temp/"/> </bean> -->
+	<!-- 멀티파트파일이 사용되기 위해서 선행설정을 할수있는 리졸브 설정함
+	파일 최대 크기, 인코딩 설정(한글 깨짐 방지)함 -->
+	<bean id="multipartResolver"
+		class="org.springframework.web.multipart.commons.CommonsMultipartResolver">
+		<property name="maxUploadSize" value="1048760"></property>
+		<property name="defaultEncoding" value="UTF-8"></property>
+	</bean>
+
+	<!-- 뷰 리졸브 설정, 뷰이름의 앞뒤설정 -->
 	<bean id="internalResourceViewResolver"
 		class="org.springframework.web.servlet.view.InternalResourceViewResolver">
 		<property name="prefix">
@@ -46,6 +66,8 @@
 			<value>.jsp</value>
 		</property>
 	</bean>
+
+
 
 </beans> 
 

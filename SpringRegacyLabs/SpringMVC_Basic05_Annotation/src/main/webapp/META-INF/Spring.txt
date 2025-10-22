@@ -1,0 +1,115 @@
+기존 : JSP 기반의 사이트 (DAO  , VO)
+
+고전적인 Spring 기반의 서비스
+
+
+
+Spring 사용 LIB :
+MAIN
+
+dist\안에 Jar import ....
+
+1. web.xml => Front Contoller : DispatcherServlet 구현
+           => URL 패턴 : *.htm
+
+2. 필요한 객체를 Load => 패턴을 가지고 있는 녀석들
+   사용자가 notice.htm
+   xml 하나 추가 ->     <servlet-name>dispatcher</servlet-name>
+   dispatcher-servlet.xml 생성
+   
+-------------------------------------------------------------------------------
+Spring 도 기존의 MVC 사용 
+Model 유지
+View 유지
+Controller =>  DispatcherServlet => 사용하는 서비스 class 제작
+
+3. Controller 역할을 하는 클래스 제작 
+   => NoticeController 클래스 
+   단 이 클래스는 implements Controller 구현 하여야 한다
+   =>handleRequest 메서드가 모든 처리 담당
+   =>글쓰기 -> 클래스
+   =>글상세 -> 클래스 
+   =>필요한 DAO 클래스도 참조 관계로 가지고 있다
+
+4.  NoticeController 인젝션 처리 통해 DispatcherServlet 사용할 수 있게
+    NoticeController 를 빈으로 등록  (페턴 구현)
+    사용하는 추가 class 에 대해서 setter 처리 할 수 있도록 ref=설정
+    
+    주의사항
+    <property name="noticeDao" ref="noticeDao"></property>   
+     =>name="noticeDao" => private NoticeDao noticeDao;
+     =>setter 동작 
+
+5. view 단처리 (JSTL and EL)
+   jar 추가
+   
+6. 기본적인 조회 처리 완료
+------------------------------------------------------------
+현재 추가적인 구현 : 상세보기  구현
+그런데 현재 사용하는 Spring 방식에서는 하나의 기능이(method) 구현 하기 위해서
+별도로 하나의 클래스 생성(controller) 상세를 처리하는 ....
+-> 그래서 annotation 사용하면 지금의 문제를 해결 가능 (하나의 클래스가 여러개의 기능)    
+   
+=========================================================================
+SpringMVC_Basic04_Web_Annotation 프로젝트
+
+
+현재 코드를 우리가 배운 방식으로 변환
+[SpringMVC_Basic03_Annotation]
+  
+
+1. Annotation변경
+
+   @Controller
+   @RequestMapping
+
+   하나의 컨트롤러가 여러개의 요청 처리 하도록 변환
+   >> ncontroller > CustomerController >> 게시판 목록보기 , 게시판 상세보기 함수 매핑을 통해서 완성
+
+@Controller
+class Board{
+	
+	@RequestMapping("/list.do")
+	void listBoard(){
+	}
+	
+	@RequestMapping("/insert.do")
+	void insertBoard(){
+	}
+
+}
+
+1. ncontroller 패키지 생성
+1.1 CustomerController 생성
+
+   
+[옵션]
+spring MVC의 Controller 클래스 선언을 단순화시켜준다. 
+스프링 컨트롤러, 서블릿을 상속할 필요가 없으며, @Controller로 등록된 클래스 파일에 대한 bean을 자동으로 생성해준다.
+ Controller로 사용하고자 하는 클래스에  @Controller 지정해 주면 component-scan으로 자동 등록된다.
+ <context:component-scan base-package="com.controller"/> 
+ @Controller 가 붙어있는 클래스를 자동 bean 등록   
+   
+--------------------------------------------------------------   
+*글쓰기 구현 (파일 업로드)
+* Notice.java (VO, DTO) .....
+fileSrc 업로드한 파일명
+
+insert 나 update > 페이지 다른 페이지로 redirect 하지 않으면 (F5 계속 write)
+이동 :  location.href or redirect
+javascript  : location.href="notice.do"
+servlet/jsp : response.sendRedirect(notice.do) 
+
+
+spring > return "redirect:notice.do"
+
+customer/upload 
+---------------------------------------------------------------------------   
+   
+   
+   
+   
+   
+   
+   
+     
