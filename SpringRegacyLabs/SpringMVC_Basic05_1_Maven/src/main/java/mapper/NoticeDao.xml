@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- 1. Mybatis Mapper 작업을 위한 약속 2가지 1.1 mapper namespace="" 는 DAO 인터페이스와 
+	동일한 경로 1.2 interface 가지는 함수이름과 xml id="" 동일하게 dao.NoticeDao 인터페이스의 구현체(구현부)가 
+	mapper파일이다 -> NoticeDao.xml 동기화 되기 위해서는 약속 2가지를 지켜야 함 //게시물 개수 public int 
+	getCount(String field, String query) throws ClassNotFoundException, SQLException; 
+	//전체 게시물 public List<Notice> getNotices(int page, String field, String query) 
+	throws ClassNotFoundException, SQLException; //게시물 삭제 public int delete(String 
+	seq) throws ClassNotFoundException, SQLException; //게시물 수정 public int update(Notice 
+	notice) throws ClassNotFoundException, SQLException; //게시물 상세 public Notice 
+	getNotice(String seq) throws ClassNotFoundException, SQLException; //게시물 
+	입력 public int insert(Notice n) throws ClassNotFoundException, SQLException; -->
+<!-- int getCount(String field, String query) 1. parameter 1개 : 생략 or parameterType="int" 
+	2. parameter DTO : parameterType="vo.notice" 3. parameter DTO 아니고 2개 이상인 
+	경우 3.1**** hashMap > map.put(key,value) >> parameterType="hashMap" >> map.put(name,"홍길동") 
+	3.2 mybatis parameter read : param1 , param2 , param3 정해지 키워드 (가독성 (x) , 
+	한개 짜리 불가)) # 타입에 대한 처리 where ename = #{name} >> where ename = '홍길동' >> where 
+	ename like '%'홍길동'%' $ 있는 그대로 출력 where ename = ${name} >> where ename = 홍길동 
+	>> where ename like '%홍길동%' >> 테이블명 , 컬럼명 int getCount(String field, String 
+	query) String field >> param1 String query >> param2 FROM NOTICES WHERE #{param1} 
+	>> FROM NOTICES WHERE 'TITLE' (x) >> FROM NOTICES WHERE TITLE LIKE '%#{param1}%' 
+	>> LIKE '%'aa'%' -->
+
+<mapper namespace="dao.NoticeDao">
+	<!-- //게시물 개수 public int getCount(String field, String query) throws ClassNotFoundException, 
+		SQLException; String sql = "SELECT COUNT(*) CNT FROM NOTICES WHERE "+field+" 
+		LIKE ?"; TODO : 매핑된 인터페이스 DAO에 @param 적용 resultType : 리턴타입 설정 -->
+	<select id="getCount" resultType="int">
+		SELECT COUNT(*) CNT FROM NOTICES WHERE ${param1} LIKE '%${param2}%'
+	</select>
+
+	<!-- //전체 게시물 public List<Notice> getNotices(int page, String field, String 
+		query) throws ClassNotFoundException, SQLException; -->
+	<!-- List<Notice> getNotices(int page, String field, String query) int page 
+		> param1 String field > param2 String query > param3 이렇게 써도 되지만.. 문제는... 
+		srow와 erow는 계산이 되고 있음.. st.setString(1, "%"+query+"%"); st.setInt(2, srow); 
+		st.setInt(3, erow); page > [1][2][3][4][5]다음 >> 1번페이지 클릭 >> 1번 ~ 5번글 이전[6] 
+		int srow = 1 + (page-1)*5; -> 매퍼에서는 1 + (${param1}-1)*5 사용 int erow = 5 + 
+		(page-1)*5; -> 매퍼에서는 5 + (${param1}-1)*5 사용 -->
+	<select id="getNotices" resultType="vo.Notice">
+		SELECT *
+		FROM (SELECT ROWNUM NUM, N.*
+		FROM (SELECT *
+		FROM NOTICES
+		WHERE ${param2} LIKE '%${param3}%' ORDER BY REGDATE DESC) N)
+		WHERE NUM
+		BETWEEN (${param1}-1)*5 AND 5 + (${param1}-1)*5
+	</select>
+
+	<!-- //게시물 삭제 public int delete(String seq) throws ClassNotFoundException, 
+		SQLException; 파라미터 1개는 보통은 생략함 (parameterType=String 생략) resultType은 insert/update/delete 
+		기본 int라서 생략 가능 ;는 디벨로퍼 또는 sqlplus 실행할 때나 사용 -->
+	<delete id="delete">
+		DELETE NOTICES WHERE SEQ=#{seq}
+	</delete>
+
+	<!-- //게시물 수정 public int update(Notice notice) throws ClassNotFoundException, 
+		SQLException; -->
+	<update id="update" parameterType="vo.Notice">
+		UPDATE NOTICES SET TITLE=#{title}, CONTENT=#{content}, FILESRC=#{fileSrc}
+		WHERE SEQ=#{seq}
+	</update>
+
+	<!-- //게시물 상세 public Notice getNotice(String seq) throws ClassNotFoundException, 
+		SQLException; 
+		내부적으로 
+		Notice notice = new Notice();
+		notice.setTitle(rs("title"))
+		...
+		return notice; 해준다
+		조회 결과가 여러개면 자동으로 List로 만들어주고
+		1개면 객체타입 1개로 만들어줌
+		-->
+	<select id="getNotice" resultType="vo.Notice">
+		SELECT seq, title, writer, content, regdate, hit, fileSrc 
+		FROM NOTICES WHERE SEQ= #{seq}
+	</select>
+	
+	<!-- 
+	public int insert(Notice n) throws ClassNotFoundException, SQLException; 
+	INSERT INTO NOTICES(SEQ, TITLE, CONTENT, WRITER, REGDATE, HIT, FILESRC) VALUES( (SELECT MAX(TO_NUMBER(SEQ))+1 FROM NOTICES), ?, ?, 'bituser', SYSDATE, 0, ?)
+	 서브 쿼리 사용함(시퀀스를 안썼음)
+	 -->
+	 <!-- 방법1 
+	 <insert id="insert" parameterType="vo.Notice">
+	 INSERT INTO NOTICES(SEQ, TITLE, CONTENT, WRITER, REGDATE, HIT, FILESRC) 
+	 VALUES( 
+	 	(SELECT MAX(TO_NUMBER(SEQ))+1 
+	 	FROM NOTICES), #{title}, #{content}, 'kosa', SYSDATE, 0, #{fileSrc})
+	 </insert>
+	 -->
+	 
+	 <insert id="insert">
+	 <!--selectKey 먼저 실행되는 쿼리 설정  -->
+	 	<selectKey order="BEFORE" keyProperty="seq" resultType="String">
+			SELECT MAX(TO_NUMBER(SEQ))+1 FROM NOTICES
+	 	</selectKey>
+	 	INSERT INTO NOTICES(SEQ, TITLE, CONTENT, WRITER, REGDATE, HIT, FILESRC) 
+	 	VALUES (#{seq}, #{title}, #{content}, 'kosa', SYSDATE, 0, #{fileSrc})
+	 </insert>
+</mapper>

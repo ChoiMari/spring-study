@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- 
+	// 인터페이스 - 기본 public abstract 생략
+	int insertEmp(Emp e); //insert
+	int updateEmp(Emp e); //update
+	int deleteEmpByEmpno(@Param("empno") int empno); //delete
+	
+	List<Emp> getEmpList(); //전체 조회
+	Emp getEmp(@Param("empno") int empno);//조건조회
+
+ -->
+<mapper namespace="dao.EmpDao">
+	<insert id="insertEmp" parameterType="vo.Emp">
+		INSERT INTO EMP (empno, ename, job, mgr, hiredate, sal, comm, deptno) 
+		VALUES(#{empno},#{ename},#{job}, #{mgr}, #{hiredate}, #{sal}, #{comm}, #{deptno})
+	</insert>
+	<update id="updateEmp" parameterType="vo.Emp">
+		UPDATE emp 
+		SET 
+			ename = #{ename},
+			job = #{job},
+			mgr = #{mgr},
+			sal = #{sal},
+			comm = #{comm},
+			deptno = #{deptno}
+		WHERE empno = #{empno}
+	</update>
+	<delete id="deleteEmpByEmpno"> 
+		DELETE FROM emp WHERE empno = #{empno}
+	</delete>
+	<!-- 전체조회 -->
+	<select id="getEmpList" resultType="vo.Emp">
+		SELECT empno, ename, job, mgr, hiredate, sal, comm, deptno
+		FROM emp
+	</select>
+	<!-- 조건조회 -->
+	<select id="getEmp" resultType="vo.Emp">
+		SELECT empno, ename, job, mgr, hiredate, sal, comm, deptno
+		FROM emp
+		WHERE empno = #{empno}
+	</select>
+</mapper>
