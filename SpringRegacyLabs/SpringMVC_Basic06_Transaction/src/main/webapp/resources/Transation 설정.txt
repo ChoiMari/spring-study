@@ -1,0 +1,138 @@
+FrontController -> mapping -> CustomerController (함수단위 매핑) -함수 (모든 로직 ...DAO ,DTO ...)
+IndexController
+JoinController
+CustomerController -> Service -> DB(DAO) 작업 -> Service -> CustomerController -> VIEW단 (View : Model) 
+***** 하나의 서비스가 여러개의 업무를 처리 해야 ...
+
+
+​
+1. 은행 입출금 - 트랜잭션 처리 필수!! 
+2. 회원 게시판 글쓰면 .... POINT 증가하는 비지니스 -> 트랜잭션 처리 필요!
+둘 다 성공 시에만 commit; 1개라도 실패하면 rollback;
+
+-- 하나의 논리적 단위로 묶겠다. 경진대회에서 드러나야하는 기술 : 동적쿼리, 트랜잭션
+begin
+	insert board      ...
+	update member ...
+end
+commit  , rollback
+
+하나의 작업 단위를 무엇으로 구분할 것인가?
+- 서비스계층에서 트랜잭션 처리함. 의존성 주입 필요 
+1. Service 단 추가 : DB작업 분리 (Mybatis)
+***** 하나의 서비스가 여러개의 업무를 처리 해야 .. (여러개의 DAO 를 사용) ... commit , rollback 제어
+
+2. pom.xml에 의존성 추가하기 - 트랜잭션을 위한
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-tx</artifactId>
+			<version>${org.springframework-version}</version>
+		</dependency>
+		
+3. xml에 해당 코드에 추가
+근데 루트 컨테이너에 추가할것인지?
+자식(디스패처 서블릿이 사용하는 컨테이너)쪽에 있는건 부모 컨테이너(루트 컨테이너)에서 사용 못함
+xmlns:tx="http://www.springframework.org/schema/tx" 추가하기 
+
+
+4. xml 설정코드 만들기
+
+<!-- Transaction 만들기 -->
+<bean id="transactionManager"  class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+<property name="dataSource" ref="driverManagerDataSource" /> 
+</bean>
+
+<tx:annotation-driven transaction-manager="transactionManager"/> 
+//@Transactional
+
+	
+
+---------------------------------------------------------------------------
+DB 작업
+1. 
+insert into member(userid, pwd , name)
+values('admin','1004','관리자');
+commit;
+
+2. 
+alter table member
+add point number;
+
+3. 
+제약 추가 (테스트 하기 위해서) : 게시판 처음글 >> point 1 , 게시판 두번쨰 >> point 2  , 게시판 세번쨰 >> 예외
+alter table member 
+add constraint ck_member_hit check(point < 3);
+-- 3이 되면 에러 , 그때 rollback되는 지 확인 해봄. 트랜잭션 되는지 시뮬레이션
+--  게시판 , 포인트도 rollback되는지 확인 하기 위해서
+
+게시판 글이 ROLLBACK 되는지 확인 ^^ .... 
+
+select * from user_constraints;  //제약정보 확인 .....
+
+--------------------------------------------------------------------------
+DB  TEST
+
+update member
+set point = nvl(point,0) + 1
+where userid = 'admin'; 
+
+ORA-02290: check constraint (SPRINGUSER.CK_MEMBER_HIT) violated 처리 ....
+테스트 완료 되면
+
+rollback;  다시 null 값으로 
+---------------------------------------------------------------------------
+​​--TEST  전체 과정-------------------------------------------------------------
+--게시판 글쓰기  (admin)
+insert board    10번글
+update point    >> 1
+
+insert board    11번글
+update point   >> 2
+
+insert board    12번글
+update point  >> 3        check 제약 실패   (12번글 rollback)
+
+----------------------------------------------------------------------------
+코드로 와서 .....
+
+member  테이블에 point 컬럼을 update ....
+
+1. 
+NotceDao.java
+//트랜잭션 처리 (update 구현)
+//admin 이 게시판에 글을 쓰면  member  테이블에 있는 Point 컬럼을 1씩 증가
+int updateOfMemberPoint(String userid)throws ClassNotFoundException, SQLException;
+
+2.
+NoticeDao.xml
+추가 ....
+<update id="updateOfMemberPoint">
+  	 update member
+	 set point = nvl(point,0) + 1
+     where userid = #{userid};    
+  </update>
+  
+3. 
+CustomerService.java
+트랜잭션 처리하기 
+3.1 
+System.out.println("transaction 문제 발생 " + e.getMessage());
+			
+//서비스를 실행한 주체가  Controller 에게 예외를 던지기 
+//public String noticeReg(Notice n, HttpServletRequest request) throws Exception
+throw e;
+
+
+
+4. 예외 처리시 화면제어
+   String url = "redirect:notice.do"; // 예외가 발생했을때 화면처리 .. 게시판 화면
+		 
+		 try {
+			    url = customerService.noticeReg(n, request);
+			    
+		} catch (Exception e) {
+			    e.printStackTrace();
+			    //service 던지 예외 .....
+		}
+		 
+		 return url;

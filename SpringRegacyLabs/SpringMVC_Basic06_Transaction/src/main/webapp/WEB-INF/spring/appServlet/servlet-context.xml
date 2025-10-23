@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
+		http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-4.3.xsd">
+
+<context:annotation-config />
+<context:component-scan base-package="ncontroller" />
+<context:component-scan base-package="dao" />
+<context:component-scan base-package="service" />
+
+<!-- Transaction 만들기 
+하위컨테이너(디스패처서블릿이 사용하는 컨테이너)는 상위 컨테이너(루트 컨테이너를) bean을 참조 할 수 있다
+스프링 부트에서는 근데 컨테이너가 1개로 통합 되었다고 함
+-->
+<bean id="transactionManager"  class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+<property name="dataSource" ref="driverManagerDataSource" /> 
+</bean>
+
+<tx:annotation-driven transaction-manager="transactionManager"/> 
+<!-- 이게 있어야 @Transactional 이 어노테이션이 동작함 tx:annotation-driven 이게 필요-->
+</beans>
+
+

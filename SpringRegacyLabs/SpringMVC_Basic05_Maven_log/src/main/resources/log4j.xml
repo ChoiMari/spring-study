@@ -37,7 +37,6 @@
 		<priority value="warn" />
 		<appender-ref ref="console" />
 	</root>
-	
 	<!-- SQL Logger -->
 
 	<logger name="jdbc.sqltiming" additivity="false">
