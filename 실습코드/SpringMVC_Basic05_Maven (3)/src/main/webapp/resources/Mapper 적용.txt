@@ -1,0 +1,57 @@
+1. Maven 버전 올리기 와 롬복 사용하기
+		<dependency>
+		    <groupId>org.mybatis</groupId>
+		    <artifactId>mybatis</artifactId>
+		    <version>3.5.14</version>
+		</dependency>
+		<dependency>
+		    <groupId>org.mybatis</groupId>
+		    <artifactId>mybatis-spring</artifactId>
+		    <version>2.0.7</version>
+		</dependency>
+		<dependency>
+		    <groupId>org.projectlombok</groupId>
+		    <artifactId>lombok</artifactId>
+		    <version>1.18.30</version>
+		</dependency>	
+
+2. 
+@Mapper 적용하기
+
+@Mapper
+public interface MemberDao {
+	public Member getMember(String userid) throws ClassNotFoundException, SQLException;
+	public int insert(Member member) throws ClassNotFoundException, SQLException;
+	
+}
+
+3. xml 설정에서 
+@Mapper scan 하기
+<bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+    <property name="basePackage" value="com.example.dept.mapper"/>
+</bean>
+
+
+4. Member service 변경
+@Service
+@RequiredArgsConstructor
+public class MemberService {
+	/*
+	private SqlSession sqlsession;
+
+	@Autowired
+	public void setSqlsession(SqlSession sqlsession) {
+		this.sqlsession = sqlsession;
+	}
+	*/
+	
+	private final MemberDao deptMapper;
+	
+
+5. JoinController 변경
+@Controller
+@RequiredArgsConstructor
+@RequestMapping("/joinus/")
+public class JoinController {
+	
+	private  final MemberService memberService;	

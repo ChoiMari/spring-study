@@ -1,0 +1,45 @@
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- 
+1. Mybatis Mapper 작업
+1.1  mapper namespace="" 는 DAO 인터페이스와 동일한 경로 
+1.2  interface 가지는 함수이름과  xml id="" 동일하게 
+ 
+ SELECT * FROM MEMBER WHERE UID=?
+ INSERT INTO MEMBER(UID, PWD, NAME, GENDER, BIRTH, IS_LUNAR, CPHONE, EMAIL, HABIT, REGDATE)
+ VALUES( ?, ?, ?, ?, ?, ?, ?, ?, ?, SYSDATE)
+
+sqlDevelpoer 에서 변경하세요 
+alter table member 
+rename column "UID" to userid;
+ 
+ 
+ public Member getMember(String userid)
+ public int insert(Member member) 
+ 
+ 만약에
+ 
+ select empno as no, enname , job , sal from emp
+ 
+ DTO
+ class Emp{
+  String no,  >> empno 
+  String name,
+  String job,
+  int sal
+ }
+ 
+ 원칙적으로 매핑 실패 ...
+ resultMap=""   empno  하고 no 매핑해라 .... 
+ -->
+ <mapper namespace="dao.MemberDao">
+ 	<select id="getMember" resultType="vo.Member"  >
+ 		select userid ,pwd,name,gender,birth,is_lunar,cphone,email,habit,regdate 
+        from member where userid=#{userid}
+ 	</select>
+    <insert id="insert" parameterType="vo.Member">
+    	INSERT INTO MEMBER(USERID, PWD, NAME, GENDER, BIRTH, IS_LUNAR, CPHONE, EMAIL, HABIT, REGDATE)
+        VALUES(#{userid}, #{pwd}, #{name},'남','2025','1','2','3','4',SYSDATE)
+    </insert>
+ </mapper>
