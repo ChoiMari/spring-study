@@ -11,4 +11,10 @@ public class HomeController {
 		return "home"; //뷰리졸브에서 조합함
 		// /WEB-INF/views/home.jsp
 	}
+	
+	@RequestMapping("/dept")
+	public String deptListPage() {
+		return "dept";
+	}
+	
 }

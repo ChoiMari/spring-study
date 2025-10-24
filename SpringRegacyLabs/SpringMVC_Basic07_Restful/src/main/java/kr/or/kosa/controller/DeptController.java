@@ -20,7 +20,7 @@ import lombok.RequiredArgsConstructor;
 
 @RestController //-> 모든 메서드 비동기
 @RequiredArgsConstructor
-@RequestMapping("/dept")
+@RequestMapping("/api/dept")
 public class DeptController {
 	private final DeptService deptSvc;
 	
