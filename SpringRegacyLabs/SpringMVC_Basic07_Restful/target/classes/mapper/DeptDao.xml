@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+	<!-- 
+	List<Dept> getDeptAll(); // 전체조회 
+	Dept getDept(int deptno); // 조건조회 int 
+	insert(Dept dept);//삽입 
+	int update(Dept dept);//수정 
+	int delete(int deptno);//삭제 
+	-->
+<mapper namespace="kr.or.kosa.dao.DeptDao">
+	<select id="getDeptAll" resultType="kr.or.kosa.dto.Dept">
+		select deptno, dname, loc from dept
+	</select>
+	<select id="getDept" resultType="kr.or.kosa.dto.Dept">
+		select deptno, dname, loc from dept where deptno = #{deptno}
+	</select>
+	<insert id="insert" parameterType="kr.or.kosa.dto.Dept">
+		insert into dept(deptno, dname, loc) values(#{deptno}, #{dname}, #{loc})
+	</insert>
+	<update id="update" parameterType="kr.or.kosa.dto.Dept">
+		update dept set dname = #{dname},
+						loc = #{loc}
+		where deptno = #{deptno}
+	</update>
+	<delete id="delete">
+		delete from dept where deptno = #{deptno}
+	</delete>
+</mapper>
