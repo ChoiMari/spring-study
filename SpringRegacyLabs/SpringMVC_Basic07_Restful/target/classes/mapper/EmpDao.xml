@@ -1,0 +1,32 @@
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- 
+	EmpDao.java - 인터페이스
+	List<Emp> select();
+	Emp selectByEmpno(int empno);
+	int insert(Emp emp);
+	int update(Emp emp);
+	int delete(int empno);
+ -->
+ <mapper namespace="kr.or.kosa.dao.EmpDao">
+	<insert id="insert" parameterType="kr.or.kosa.dto.Emp">
+		insert into emp(empno,ename,sal) values(#{empno},#{ename},#{sal})
+	</insert>	
+		
+	<select id="select" resultType="kr.or.kosa.dto.Emp">
+		select empno, ename ,sal from emp
+	</select>
+	
+	<select id="selectByEmpno" resultType="kr.or.kosa.dto.Emp">
+		select empno, ename ,sal from emp where empno=#{empno}
+	</select>
+	
+	<update id="update" parameterType="kr.or.kosa.dto.Emp">
+		update emp set ename=#{ename} , sal=#{sal} where empno=#{empno}
+	</update>
+	
+	<delete id="delete">
+		delete from emp where empno=#{empno}
+	</delete>
+ </mapper>

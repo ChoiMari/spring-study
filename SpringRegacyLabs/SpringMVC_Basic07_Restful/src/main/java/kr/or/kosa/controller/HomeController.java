@@ -1,0 +1,14 @@
+package kr.or.kosa.controller;
+
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+
+@Controller
+public class HomeController {
+	
+	@RequestMapping("/")
+	public String home() {
+		return "home"; //뷰리졸브에서 조합함
+		// /WEB-INF/views/home.jsp
+	}
+}
