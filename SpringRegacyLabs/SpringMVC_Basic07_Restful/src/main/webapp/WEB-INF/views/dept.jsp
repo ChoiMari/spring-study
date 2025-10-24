@@ -5,7 +5,7 @@
 <meta charset="UTF-8">
 <title>부서 관리</title>
 
-<!-- ✅ Bootstrap CSS & JS -->
+<!--  Bootstrap CSS & JS -->
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
@@ -17,12 +17,12 @@
 <body class="container mt-5">
     <h2 class="mb-4 text-center">부서 목록</h2>
 
-    <!-- ✅ 부서 등록 버튼 -->
+    <!--  부서 등록 버튼 -->
     <div class="mb-3 text-end">
         <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#insertModal">부서 등록하기</button>
     </div>
 
-    <!-- ✅ 부서 목록 테이블 -->
+    <!--  부서 목록 테이블 -->
     <table class="table table-bordered table-hover text-center" id="deptTable">
         <thead class="table-light">
             <tr>
@@ -35,7 +35,7 @@
         <tbody></tbody>
     </table>
 
-    <!-- ✅ 등록 모달 -->
+    <!--  등록 모달 -->
     <div class="modal fade" id="insertModal" tabindex="-1" aria-labelledby="insertModalLabel" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
@@ -64,7 +64,7 @@
         </div>
     </div>
 
-    <!-- ✅ 수정 모달 -->
+    <!--  수정 모달 -->
     <div class="modal fade" id="updateModal" tabindex="-1" aria-labelledby="updateModalLabel" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
@@ -92,13 +92,13 @@
 
 <script>
 /* -------------------------------
-   ✅ 초기 로드 시 전체 부서 목록 불러오기
+   초기 로드 시 전체 부서 목록 불러오기
 -------------------------------- */
 document.addEventListener("DOMContentLoaded", () => {
     loadDeptList();
 });
 
-/* ✅ 전체 목록 조회 */
+/* 전체 목록 조회 */
 function loadDeptList() {
     fetch("/api/dept")
         .then(res => {
@@ -129,7 +129,7 @@ function loadDeptList() {
 }
 
 /* -------------------------------
-   ✅ 부서 등록
+   부서 등록
 -------------------------------- */
 document.querySelector("#insertForm").addEventListener("submit", e => {
     e.preventDefault();
@@ -159,7 +159,7 @@ document.querySelector("#insertForm").addEventListener("submit", e => {
 });
 
 /* -------------------------------
-   ✅ 행 클릭 시 수정 모달 열기
+   행 클릭 시 수정 모달 열기
 -------------------------------- */
 document.querySelector("#deptTable").addEventListener("click", e => {
     const tr = e.target.closest("tr");
@@ -178,7 +178,7 @@ document.querySelector("#deptTable").addEventListener("click", e => {
 });
 
 /* -------------------------------
-   ✅ 부서 수정
+   부서 수정
 -------------------------------- */
 document.querySelector("#updateForm").addEventListener("submit", e => {
     e.preventDefault();
@@ -207,7 +207,7 @@ document.querySelector("#updateForm").addEventListener("submit", e => {
 });
 
 /* -------------------------------
-   ✅ 삭제 버튼 클릭 시 삭제 요청
+   삭제 버튼 클릭 시 삭제 요청
 -------------------------------- */
 document.querySelector("#deptTable").addEventListener("click", e => {
     if (e.target.classList.contains("deleteBtn")) {
