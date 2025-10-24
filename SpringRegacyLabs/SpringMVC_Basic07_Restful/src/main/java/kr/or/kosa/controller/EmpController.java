@@ -5,9 +5,11 @@ import java.util.List;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -75,7 +77,33 @@ public class EmpController {
 	}
 	
 	//수정 - PUT/PETCH
+	//@RequestBody Emp emp
+	@PutMapping
+	public ResponseEntity<String> update(@RequestBody Emp emp){
+		try {
+			System.out.println("update");
+			System.out.println(emp.toString());
+			empService.update(emp);
+			return new ResponseEntity<String>("update success", HttpStatus.OK);
+		} catch (Exception e) {
+			System.out.println("update 실패 : " + e.getMessage());
+			return new ResponseEntity<String>("update fail", HttpStatus.BAD_REQUEST);
+		}
+	}
 	
 	//삭제 - DELETE
+	//@PathVariable("empno") int empno
+	@DeleteMapping("{empno}")
+	public ResponseEntity<String> delete(@PathVariable("empno") int empno){
+		try {
+			System.out.println("update");
+			System.out.println("empno : " + empno);
+			empService.delete(empno);
+			return new ResponseEntity<String>("delete success", HttpStatus.OK);	
+		} catch (Exception e) {
+			System.out.println("delete 실패 : " + e.getMessage());
+			return new ResponseEntity<String>("delete fail", HttpStatus.BAD_REQUEST);
+		}
+	}
 	
 }
