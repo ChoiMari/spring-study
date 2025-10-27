@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<!-- 타임리프 사용하기 위해 필요함, 접두사 설정 -->
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Dept List</title>
+    <!-- Bootstrap CDN 추가 -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="container mt-5">
+
+    <h1 class="mb-4">Department List</h1>
+
+    <div class="mb-3">
+        <a th:href="@{/dept/add}" class="btn btn-primary">Add New Dept</a>
+    </div>
+
+    <table class="table table-bordered table-hover">
+        <thead class="table-dark">
+            <tr>
+                <th>Deptno</th>
+                <th>Dname</th>
+                <th>Loc</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+      		<tr th:each="dept : ${list}">
+      			<td th:text="${dept.deptno}"></td>
+      			<td>
+			    	<a th:href="@{/dept/detail/{deptno}(deptno=${dept.deptno})}"
+			           th:text="${dept.dname}"></a>
+			    </td>
+      			<td th:text="${dept.loc}"></td>
+				<td>
+                    <a th:href="@{/dept/edit/{deptno}(deptno=${dept.deptno})}" class="btn btn-sm btn-warning">Edit</a>
+                    <a th:href="@{/dept/delete/{deptno}(deptno=${dept.deptno})}" class="btn btn-sm btn-danger">Delete</a>
+                </td>
+      		</tr>
+        </tbody>
+    </table>
+
+    <!-- Bootstrap JS (선택사항) -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+</body>
+</html>

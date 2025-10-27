@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!--  
+	1. mapper > UserMapper 인터페이스 와 연결  xml 파일
+	1.1 조건 namespace="com.example.demo.mapper.UserMapper" 써주면 .. 
+	1.2 조건 mapper > UserMapper 인터페이스 있는 함수이름을 그대로 사용 동기화 id="selectAll"
+	
+	List<User> selectAll();  
+	User selectById(Long id); 
+	void insert(User user);
+	void update(User user);
+	void delete(Long id);
+	
+	#{String}  => 'String'
+	#{int}     =>  0
+	${String}  =>  String  (LIKE 할때  , 컬럼명 , 테이블명)
+-->
+<mapper namespace="com.example.demo.mapper.UserMapper">
+
+	<!--
+		당신이 DB Table 컬럼명하고 ... model DTO 클래스에 있는 member field 같지 않다면 강제 
+		<id property="id" column="userid"></id>.
+		resultMap 쓰지말라... : 내가만든 dto와 select결과물과 컬럼명이 달라서.. 매치가 안되서 맞추려 사용하는데..
+		애초부터 패칭되게 쓰고 이걸 안 쓰도록 해라..
+	-->
+	<resultMap type="com.example.demo.model.User" id="userResultMap">
+		<id property="id" column="id"></id>
+		<result property="username" column="username" />
+		<result property="password" column="password" />
+		<result property="email" column="email" />
+	</resultMap>
+	
+	
+	<!--
+		resultMap="userResultMap"
+		resultType="com.example.demo.model.User"  원칙 
+	-->
+	<select id="selectAll"  resultMap="userResultMap">
+		select id, username, password , email from users
+	</select>
+	
+	<select id="selectById" parameterType="long" resultMap="userResultMap">
+		select id, username, password , email from users where id=#{id}
+	</select>
+	
+	<!--
+		mybatis.type-aliases-package=com.example.demo.model
+	-->
+	<insert id="insert" parameterType="User"><!-- dto타입 -->
+		insert into users(id,username,email)
+		values(user_id.nextval, #{username} , #{email})
+	</insert>
+	
+	<update id="update" parameterType="User">
+		update users 
+		set username=#{username} , email=#{email}
+		where id=#{id}
+	</update>
+	
+	<delete id="delete" parameterType="long">
+		delete from users where id=#{id}
+	</delete>
+</mapper>

@@ -1,0 +1,95 @@
+//JSP 사용
+	//tomcat 서버 
+	implementation 'org.apache.tomcat.embed:tomcat-embed-jasper'
+	//서블릿 jsp 설정    
+	implementation 'jakarta.servlet:jakarta.servlet-api' //스프링부트 3.0 이상
+	//jstl 설정 
+	implementation 'jakarta.servlet.jsp.jstl:jakarta.servlet.jsp.jstl-api' //스프링부트 3.0 이상
+    implementation 'org.glassfish.web:jakarta.servlet.jsp.jstl' //스프링부트 3.0 이상
+
+
+
+----------------------------------------------------------------------------------------------------
+
+1. 의존성 주입 
+	//JSP 사용
+	//tomcat 서버 
+	implementation 'org.apache.tomcat.embed:tomcat-embed-jasper'
+	//서블릿 jsp 설정    
+	implementation 'jakarta.servlet:jakarta.servlet-api' //스프링부트 3.0 이상
+	//jstl 설정 
+	implementation 'jakarta.servlet.jsp.jstl:jakarta.servlet.jsp.jstl-api' //스프링
+	
+2. 폴더 생성하기
+   main > webapp > WEB-INF > views > domain 별 필요한 폴더
+   
+
+3. STS jsp 파일 지원 하지 않아요 
+3.1 market 에서 web 검색 (설치)   	
+
+
+4. TEST
+4.1 컨트롤로 JSP 확인
+EL & JSTL
+
+
+5. properties 파일 설정하기 
+
+DB 연결
+mybatis  설정
+viewResolver 설정
+jsp 사용 설정
+
+
+------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------
+mybatis 
+
+# MyBatis 설정
+mybatis.type-aliases-package=kr.or.kosa.model
+mybatis.mapper-locations=classpath:mapper/*.xml
+
+1. DB 생성
+1.1 테이블 생성 
+1.2 시퀀스 생성
+
+create table users(
+    id number primary key,
+    username varchar2(50),
+    password varchar2(50),
+    email varchar2(50)
+);
+
+create sequence user_id;
+
+
+select * from users;
+
+insert into users(id, username, password,email)
+values(user_id.nextval ,'admin','1004','admin@naver.com');
+
+select * from users;
+
+commit;
+---------------------------------------------------------------
+mybatis  (ORM 매핑)
+
+APP  -   mybatis  -   DB
+
+객체를 parameter ... 리턴도 객체로 
+
+mapper 파일 ( 별도의 xml 파일) 
+
+단순 하기 java 파일 작업 :   
+@Select("SELECT * FROM CITY WHERE state = #{state}")
+City findByState(@Param("state") String state);
+
+목적:
+인터페이스 사용할 함수를 정의하는 ... getData()  >>  UserMapper.xml (안에 특정 쿼리가 실행)
+
+1. model > dto 생성
+2. mapper > UserMapper.java
+Spring Boot 3.2.3 → 기본 내장 톰캣 버전은 Tomcat 10.1.x 입니다.
+Spring Boot 2.7.x → Tomcat 9.x
+Spring Boot 2.5.x → Tomcat 9.x
+Spring Boot 2.1.x → Tomcat 8.5.x

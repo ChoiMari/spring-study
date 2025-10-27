@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!--  
+	1. mapper > UserMapper 인터페이스 와 연결  xml 파일
+	1.1 조건 namespace="com.example.demo.mapper.UserMapper" 써주면 .. 
+	1.2 조건 mapper > UserMapper 인터페이스 있는 함수이름을 그대로 사용 동기화 id="selectAll"
+	
+	List<User> selectAll();  
+	User selectById(Long id); 
+	void insert(User user);
+	void update(User user);
+	void delete(Long id);
+	
+	#{String}  => 'String'
+	#{int}     =>  0
+	${String}  =>  String  (LIKE 할때  , 컬럼명 , 테이블명)
+-->
+<mapper namespace="com.example.demo.mapper.EmpMapper">
+	<select id="findAllWithDept" resultType="com.example.demo.model.EmpDeptDto">
+		select e.empno, e.ename, e.job, e.sal, e.deptno, d.dname
+		from emp e join dept d
+		on e.deptno = d.deptno
+	</select>
+</mapper>
