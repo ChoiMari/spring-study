@@ -1,0 +1,641 @@
+-- user
+CREATE TABLE `user` (
+  `USER_NO` int NOT NULL AUTO_INCREMENT,
+  `USER_ID` varchar(100) NOT NULL,
+  `USER_PW` varchar(200) NOT NULL,
+  `NAME` varchar(100) NOT NULL,
+  `EMAIL` varchar(200) DEFAULT NULL,
+  `REG_DATE` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `UPD_DATE` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `ENABLED` int DEFAULT 1,
+  PRIMARY KEY (`USER_NO`)
+) COMMENT='회원';
+
+-- user_auth
+CREATE TABLE `user_auth` (
+      auth_no int NOT NULL AUTO_INCREMENT       -- 권한번호
+    , user_id varchar(100) NOT NULL             -- 아이디
+    , auth varchar(100) NOT NULL                -- 권한 (ROLE_USER, ROLE_ADMIN, ...)
+    , PRIMARY KEY(auth_no)
+);
+
+select * from user;
+
+insert into user(user_id,user_pw,name,email)
+values('user','$2a$12$XaNpE2vVBM7x4ZCqlafgxu2W5vw9SXnvMgUZQnzOkFSZt605JHuqq','사용자','user@naver.com');
+
+insert into user(user_id,user_pw,name,email)
+values('admin','$2a$12$XaNpE2vVBM7x4ZCqlafgxu2W5vw9SXnvMgUZQnzOkFSZt605JHuqq','관리자','admin@naver.com');
+
+
+-- 권한
+insert into user_auth(user_id , auth)
+values('user','ROLE_USER');
+
+-- 관리자
+insert into user_auth(user_id , auth)
+values('admin','ROLE_USER');
+insert into user_auth(user_id , auth)
+values('admin','ROLE_ADMIN');
+
+
+
+
+select * from user_auth;
+
+
+select u.user_id, a.auth  
+from user  u join user_auth a on u.USER_ID = a.user_id
+where a.user_id='admin'; 
+
+----------------------------------------------------------------------------------------
+----------------------------------------------------------------------------------------
+
+
+2. 세팅
+DB작업
+properties 파일에 설정
+
+spring.datasource.url=jdbc:mysql://localhost:3305/shop
+spring.datasource.username=root
+spring.datasource.password=1004
+spring.datasource.driver-class-name=com.mysql.cj.jdbc.Driver
+
+spring.jpa.hibernate.ddl-auto=update
+spring.jpa.show-sql=true
+spring.jpa.properties.hibernate.dialect=org.hibernate.dialect.MySQLDialect   
+
+
+
+4. 
+	//DB연결 객체 (DataSource)
+	@Autowired
+	private DataSource datasource;
+
+   //JDBC 인증방식
+   	@Bean
+   	public UserDetailsService userDetailsService() {
+
+   		JdbcUserDetailsManager userDetailsManager = new JdbcUserDetailsManager(datasource);
+
+   		//사용자 인증 쿼리
+   		String sql1 = "select user_id as username , user_pw as password , enabled from user where user_id=?";
+
+   		//사용자 권한 쿼리
+   		String sql2 = "select user_id as username , auth from user_auth where user_id=?";
+
+   		userDetailsManager.setUsersByUsernameQuery(sql1); //계정 비번 확인
+   		userDetailsManager.setAuthoritiesByUsernameQuery(sql2);
+
+   		return userDetailsManager;
+   	}
+
+   	5. @Bean
+       	public SecurityFilterChain filterChain(HttpSecurity http) throws Exception{
+       		//http.csrf().disable();
+       		//http.formLogin().disable();
+
+
+       		http.authorizeRequests()
+       				.antMatchers("/admin","/admin/**").hasRole("ADMIN")
+       				.antMatchers("/user","/user/**").hasAnyRole("USER","ADMIN")
+       				.antMatchers("/css/**" , "/js/**" , "/imges/**").permitAll()
+       				.antMatchers("/**").permitAll()
+       				.anyRequest().authenticated();
+       				//설정하지 않는 모든 경로 요청에 대해서 인증된 사용자만 접근 가능
+       			http.formLogin();
+       		return http.build();
+       	}
+
+     6. View  에서 개체 활용 화면 정의
+        <th:block sec:authorize="hasAnyRole('ROLE_USER','ROLE_ADMIN')">
+                 <li>
+                     <a href="/user">사용자</a>
+                 </li>
+             </th:block>
+             <!-- 관리자 메뉴 -->
+             <th:block sec:authorize="hasRole('ROLE_ADMIN')">
+                 <li>
+                     <a href="/admin">관리자</a>
+                 </li>
+             </th:block>
+
+             <!-- 비로그인시  인증되지 않은 사용자라면-->
+             <th:block sec:authorize="isAnonymous()">
+                     <li>
+                         <a href="/login">로그인</a>
+                         <a href="/join">회원가입</a>
+                     </li>
+             </th:block>
+             <!-- 로그인시 -->
+             <th:block sec:authorize="isAuthenticated">
+                     <li>
+                         <a href="/logout">로그아웃</a>
+                     </li>
+             </th:block>
+         </ul>
+
+     7. Controller 정의 view 정의
+    @Slf4j
+    @Controller
+    public class HomeController {
+
+        @GetMapping({"","/"})
+        public String home(Model model, Principal principal){
+            String loginId = principal !=null ? principal.getName() : "guest";
+            model.addAttribute("loginId",loginId);
+            return "index";
+        }
+
+    8. 페이지 테스트 ....
+------------------------------------------------------------------------------------------------------------------------
+
+1. in memory
+
+2. jdbc
+
+security  전반적인 이해 .. 현업 .... (JPA , Mybatis)
+
+3. Mybatis  >>  mapper  >> DTO >> interface >> DAO interface (CRUD ... select, select 함수)  >> mapper.xml >> <select ...>
+3.1 DTO  user   user_auth
+한명의 USER 가 여러개의 권한을 가질 수 있다 ....
+
+-----------------------------------------------------
+board(게시판)  comment(댓글)
+
+class Board {
+  List<comment> comments;
+}
+
+POINT >>
+board b = new board();
+
+b.commnets.add(new comment());
+
+-------------------------------------------------
+JPA
+@Entity
+
+@ManytoMany
+foreign key ....
+1:1
+1:N
+N:1
+M:N
+
+USER
+1:N
+USER_AUTH
+
+@저장소 (CRUD)
+-------------------------------------------------------------------------------------------
+
+-------------------------------------------------------------------------------------------
+사용자 정의 설정하기----------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------
+//사용자 정의 인증 방식(JPA , Mybatis)
+
+ 1. 권한 설정
+ 2. 로그인 설정
+ 3. 로그아웃 설정
+ 4. 자동 로그인 설정
+ 5. 예외 처리 설정
+ 6. CSRF 방지 기능 설정
+
+-----------------------------------------------------------------------
+Mysql
+
+user 테이블 
+user_auth 테이블
+
+-----------------------------------------------------------------------
+DB 에 관련된 DTO 생성하기
+
+@Data
+public class Users {
+    private  int userNo;
+    private String userId;
+    private String userPw;
+    private String name;
+    private String email;
+    private Date regDate;
+    private Date updDate;
+
+    //권한 목록
+    List<UserAuth> authList;  //여러개의 권한을 담기 위해서 
+
+    private int enabled;  //1인 경우 활성화된 사용자 ...
+
+}
+
+-----------------------------
+@Data
+public class UserAuth {
+    private int authNo;
+    private String userId;
+    private String auth;
+}
+
+-----------------------------
+org.springframework.security.core.userdetails.UserDetails는 다음 정보를 포함
+
+메서드	의미
+getUsername()	사용자의 로그인 ID (예: email, userId 등)
+getPassword()	인코딩된 비밀번호
+getAuthorities()	권한 목록 (예: ROLE_USER, ROLE_ADMIN 등)
+isAccountNonExpired()	계정 만료 여부
+isAccountNonLocked()	계정 잠김 여부
+isCredentialsNonExpired()	비밀번호 만료 여부
+isEnabled()	활성화 여부
+
+
+-----------------------------
+public class CustomerUser  implements UserDetails {
+
+    //사용자 DTO
+    private Users user;
+
+    public CustomerUser(Users user){
+        this.user = user;
+   }
+
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return user.getAuthList().stream() //UserAuth 객체를 파라미터
+                .map((auth) -> new SimpleGrantedAuthority(auth.getAuth()))
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public String getPassword() {
+        return user.getUserPw();
+    }
+
+    @Override
+    public String getUsername() {
+        return user.getUserId();
+    }
+
+    @Override
+    public boolean isAccountNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isAccountNonLocked() {
+        return true;
+    }
+
+    @Override
+    public boolean isCredentialsNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return user.getEnabled() == 0 ? false : true;
+    }
+}
+-------------------------------------------------
+mybatis 사용
+
+mybatis.configuration.map-underscore-to-camel-case=true
+>> map-underscore-to-camel-case=true	예: user_id → userId로 자동 매핑됨
+
+CREATE TABLE user (
+  user_id VARCHAR(100),
+  user_name VARCHAR(100)
+);
+public class User {
+    private String userId;    // ← DB의 user_id 와 자동 매핑됨
+    private String userName;  // ← DB의 user_name 과 자동 매핑됨
+}
+
+
+mybatis.type-aliases-package=kr.kosa.security.dto
+mybatis.mapper-locations=classpath:mybatis/mapper/**/**.xml
+
+----------------------------------------------------
+UserMapper.xml 만들기 전에 선행
+1. DTO
+2. 추상함수를 가지고 있는 인터페이스
+----------------------------------------------------
+@Mapper
+public interface UserMapper {
+
+    public Users login(String username);
+}
+
+-----------------------------------------------------
+
+<?xml version="1.0" encoding="UTF-8" ?>
+<!-- mapper DTD 선언 -->
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="kr.kosa.security.mapper.UserMapper">
+    
+    <resultMap type="Users" id="userMap">
+        <id property="userNo" column="user_no" />
+        <result property="userNo" column="user_no" />
+        <result property="userId" column="user_id" />
+        <result property="userPw" column="user_pw" />
+        <result property="name" column="name" />
+        <result property="email" column="email" />
+        <result property="enabled" column="enabled" />
+        <result property="regDate" column="reg_date" />
+        <result property="updDate" column="upd_date" />
+
+        <collection property="authList" resultMap="authMap"></collection>
+    </resultMap>
+
+    <resultMap type="UserAuth" id="authMap">
+        <result property="userId" column="user_id" />
+        <result property="auth" column="auth" />
+    </resultMap>
+
+    <!-- 회원 조회 - id -->
+    <select id="login" resultMap="userMap">
+        SELECT u.user_no
+        ,u.user_id
+        ,user_pw
+        ,name
+        ,email
+        ,enabled
+        ,reg_date
+        ,upd_date
+        ,auth
+        FROM user u  JOIN user_auth auth ON u.user_id = auth.user_id
+        WHERE u.user_id = #{userId}
+    </select>
+</mapper>
+
+---------------------------------------------------------------------
+DB 테이블: user, user_auth (앞서 만든 구조)
+사용자 정보: User 엔티티
+인증 주체: CustomerUser (implements UserDetails)
+로딩 서비스: CustomUserDetailsService (implements UserDetailsService)
+
+1. 사용자가 로그인 시도 → ID 전달됨
+2. CustomUserDetailsService.loadUserByUsername() 호출됨
+3. DB에서 사용자 + 권한 정보 조회
+4. CustomerUser 생성 및 반환
+5. Spring Security가 인증 처리
+---------------------------------------------------------------------
+@Service
+public class CustomerDetailService  implements UserDetailsService {
+
+    @Autowired
+    private UserMapper userMapper;
+
+    @Override
+    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+        //Mybatis 사용해서  사용자 정보 조회
+
+        Users user = userMapper.login(username); // DB정보 조회
+        if(user == null){
+            throw  new UsernameNotFoundException("사용자를 찿을 수 없습니다" +  username);
+        }
+
+        CustomerUser customerUser = new CustomerUser(user);  //public class CustomerUser  implements UserDetails  에 정보 제공 (사용자)
+
+        return customerUser;
+    }
+}
+
+----------------------------------------------------------------
+@Autowired
+private CustomerDetailService customerDetailService;
+
+//사용자 정의 인증 설정하기 *******************************************
+http.userDetailsService(customerDetailService);
+
+
+-----------------------------------------------------------------------
+-----------------------------------------------------------------------
+	//인증 예외 처리
+	//accessDeiedPage() 접근 거부시 이동 경로 지정
+	//테스트 시 http://localhost:8090/admin
+		
+	//http.exceptionHandling().accessDeniedPage("/exception");
+	http.exceptionHandling().accessDeniedHandler(accessDeniedHandler());
+
+
+------------------------------------------------
+@Slf4j
+public class CustomerAccessDeniedHandler implements AccessDeniedHandler {
+    @Override
+    public void handle(HttpServletRequest request,
+                       HttpServletResponse response,
+                       AccessDeniedException accessDeniedException) throws IOException, ServletException {
+        log.info("접근 거부 에러 처리");
+
+        int statusCode = response.getStatus(); //응답 상태코드
+        log.info("HTTP 응답 상태 코드 : " + statusCode);
+        log.info("accessDeniedException : " + accessDeniedException);
+
+        response.sendRedirect("/exception");
+    }
+}
+
+-----------------------------------------------------------------------
+자동 로그인 설정
+4. 자동 로그인 설정
+ key()   : 자동 로그인에서 토근 생성 / 검증에 사용되는 식별키
+ tokenRespository() : 토큰 저장할 저장소 지정( 데이터 소스 포함한 저장소 객체)
+ tokenValiditySeconds() : 토큰 유효시간 설정 ( 7일)
+	/*
+		http.rememberMe().key("kosa")
+				.tokenRepository(tokenRepository())
+				.tokenValiditySeconds(60*60*24*7);
+	*/
+
+				http.rememberMe()
+				.key("kosa")
+				// DataSource 가 등록된 PersistentRepository 토큰정보 객체
+				//.tokenRepository( tokenRepository() )
+				// 토큰 유효기간 지정 : 7일 (초 단위)
+				.tokenValiditySeconds( 60 * 60 * 24 * 7 )
+				.userDetailsService(customerDetailService)
+				.tokenRepository(tokenRepository());
+------------------------------------------------------------------------
+	/**
+	 * 자동로그인 저장소 빈 등록
+	 * 데이터 소스 지정하기 ....
+	 */
+	@Bean
+	public PersistentTokenRepository tokenRepository() {
+		// JdbcTokenRepositoryImpl : 토큰 저장 데이터 베이스를 등록하는 객체
+		JdbcTokenRepositoryImpl repositoryImpl = new JdbcTokenRepositoryImpl();  //ctrl + H
+		
+		
+		//자동 로그인 테이블
+		//repositoryImpl.setCreateTableOnStartup(true);
+		//처음 시에만 안그러면  매번 create 충돌 
+		
+		repositoryImpl.setDataSource(datasource);   // 토큰 저장소를 사용하는 데이터 소스 지정
+		return repositoryImpl;
+		
+	   //mysql 토큰을 저장할 수 있는 테이블 생성과 저장을 자동화 한다 
+		/*
+		 CREATE TABLE persistent_logins (
+		    username VARCHAR(64) NOT NULL,
+		    series VARCHAR(64) PRIMARY KEY,
+		    token VARCHAR(64) NOT NULL,
+		    last_used TIMESTAMP NOT NULL
+		);
+
+		 */
+		 //	테스트는 세션을 삭제후에도 로그인 상태 유지 하는 것 확인
+	}
+
+----
+/***
+     * 
+     * @param auth
+     * @param model
+     * @return
+     */
+    @GetMapping("/exception")
+    public String exception(Authentication auth , Model model){
+        log.info("인증 예외 처리");
+        log.info("auth : " + auth.toString());
+        model.addAttribute("msg","인증거부 : " + auth.toString());
+        return "/exception";
+    }
+    
+---------------------------------------------------------------
+
+1. login.html 생성하기
+
+
+<!DOCTYPE html>
+<html  xmlns:th="http://www.thymeleaf.org"
+       xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+    <form action="/loginPro" method="post">
+        <!--
+        CSRF 값 처리하기
+        클라이언트에서 보낸 요청이 실제 서버에서 허용한 요청인지 확인하는 토큰
+        서버에서 뷰페이지를 응답할때 토큰을 세션에 미리 저장
+        서버에서 허용한 요청인지 확인 할 수 있는 임의로 생성된 문자열
+        로그인 요청 시  해당 토큰과 함께 요청하면 서버가 허용된 요청인 것을 확인
+
+       -->
+        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+        <h3>아이디</h3>
+        <input type="text" name="id" placeholder="아이디">
+
+        <h3>비밀번호</h3>
+        <input type="password" name="pw" placeholder="비밀번호">
+
+        <hr>
+        <input type="submit" value="로그인">
+    </form>
+</body>
+</html>
+
+--------------------------------------------------------------------------------------
+2번
+HomeController 
+
+ @GetMapping("/login")
+    public String login(){
+        log.info("로그인 처리");
+       
+        return "/login";
+    }
+ 추가하기
+ --------------------------------------------------------------------------------------   
+ 3번
+ index.html 변경
+ <!-- 로그인시 -->
+    <th:block sec:authorize="isAuthenticated">
+        <li>
+
+            <!--<a href="/logout">로그아웃</a>-->
+            <form action="/logout" method="post">
+                <!-- CSRF 토근
+                        http.csrf().disable();
+                -->
+                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+                <button type="submit">로그아웃</button>
+            </form>
+        </li>
+    </th:block>
+ ---------------------------------------------------------------------------------------
+ 
+.successHandler(authenticationSuccessHandler())  // 성공 시 핸들러 설정
+         
+SecurityConfig 에서
+//로그인 성공시 필요한 부분 처리 
+		@Bean
+		public AuthenticationSuccessHandler authenticationSuccessHandler(){
+			return new LoginSuccessHandler();
+		}
+		
+  .successHandler(authenticationSuccessHandler())  // 성공 시 핸들러 설정		
+    
+---------------------------------------------------------------------------------------------
+
+
+회원가입
+HomeController.java
+get   /join    join.html
+post  /join    회원가입처리
+               (insert 처리)
+
+UserService.java
+UserServiceImpl.java
+UserMapper.java
+UserMapper.xml   id="Join"
+
+비밀번호 암호화
+바로 로그인
+
+CSRF 토근 폼 요청
+CSRF 토큰   AJAX 요청
+
+---------------------------------
+1. 사용자 정보 등록
+테이블 user
+비밀번호 암호화 ******
+
+2. 사용자 기본 권한 등록
+테이블 user_auth
+ROLE_USER (사용자) 권한 등록  (java insert 2번 , DB trigger)
+
+작업 순서
+1. UserMapper.xml
+회원 등록 쿼리 작성
+회원 권한 등록 쿼리 작성
+
+2. UserMapper.java
+회원등록
+public int join(Users user) throws Exception;
+
+회원권한 등록
+public int insertAuth(UserAuth userAuth) throws Exception
+
+
+3. UserService.java
+회원등록
+public int join(Users user) throws Exception
+회원권한 등록
+public int insertAuth(UserAuth userAuth) throws Exception
+
+4.UserServiceImpl.java
+-join 구현
+1.비밀번호 암호화
+2.회원등록
+3.기본 권한 등록
+
+
+5. HomeController.java
+회원가입페이지 링크
+
+
+

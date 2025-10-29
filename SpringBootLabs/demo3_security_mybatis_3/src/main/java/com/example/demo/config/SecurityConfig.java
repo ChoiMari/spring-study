@@ -4,17 +4,26 @@ package com.example.demo.config;
 
 import javax.sql.DataSource;
 import static org.springframework.security.config.Customizer.withDefaults;
+
+import org.apache.ibatis.javassist.bytecode.ExceptionsAttribute;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.provisioning.JdbcUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.access.AccessDeniedHandler;
+import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
+
+import com.example.demo.security.CustomerAccessDeniedHandler;
+import com.example.demo.security.CustomerDetailService;
+import com.example.demo.security.LoginSuccessHandler;
 
 import lombok.RequiredArgsConstructor;
 
@@ -30,11 +39,16 @@ public class SecurityConfig {
 	private final DataSource dataSource; // 자동 주입됨(@RequiredArgsConstructor)
 	// implementation 'org.springframework.boot:spring-boot-starter-jdbc'
 	
+	private final CustomerDetailService customerDetailService;
+	
 	// 의존성 추가
 //	@Bean
 //	public Emp call(){
 //		return new Emp();
 //	}
+	
+	//사용자 정의 방식으로 
+	// 원래 유저디테일스는 자동 만들어주는건데 커스텀으로 만들어 버림(implements)
 	
 	@Bean
 	public SecurityFilterChain filterChain(HttpSecurity http) throws Exception{
@@ -75,7 +89,8 @@ public class SecurityConfig {
 				                            .requestMatchers("/css/**", "/js/**", "/image/**").permitAll() // /경로가 static
 				                            .requestMatchers("/", "/**").permitAll() // 위의 경로 부터 잡아서..남은 나머지는.. 이라고
 				                            .anyRequest().authenticated())// 이걸 제외한 남은 나머지는 인증된 사용자만 허락하겠다
-				                            .formLogin(withDefaults()); //로그인 방식 기본값 유지
+				                            .logout(withDefaults()); //스프링이 정의한 기본 로그아웃을 사용하겠다
+											// .formLogin(withDefaults()); //로그인 방식 기본값 유지
 				//import static org.springframework.security.config.Customizer.withDefaults;
 		
 		http.logout(logout -> logout.logoutUrl("/logout")// 로그아웃 요청 받을 url
@@ -83,6 +98,19 @@ public class SecurityConfig {
 				.deleteCookies("JSESSIONID") // 세션 id 삭제(쿠키 삭제)
 				.invalidateHttpSession(true)); // 세션의 여러가지 정보도 삭제(세션 객체 삭제) 
 		
+		http.formLogin(form -> form.loginPage("/login") // 커스텀 로그인 페이지 요청 경로
+				.loginProcessingUrl("/loginPro") // 커스텀 로그인 처리 경로
+				//.defaultSuccessUrl("/") // 로그인 성공 후 이동할 url 설정
+				.usernameParameter("id") //로그인 뷰의 태그 name속성 파라미터 바꾸기
+				.passwordParameter("pw") //로그인 뷰의 태그 name속성 파라미터 바꾸기
+				.successHandler(authenticationSuccessHandler()) // 로그인에 성공하면 메일을 보내겠다.
+				.permitAll()); // 모든 사용자에게 로그인 페이지 접근 허용
+		
+		http.userDetailsService(customerDetailService); // 사용자 정의 인증 방식으로
+		// 마이바티스를 사용하는 걸로 바꿈
+		
+		http.exceptionHandling(exceptions -> exceptions.accessDeniedHandler(accessDeniedHandler()));
+		//http.csrf(csrf -> csrf.disable()); 처음 테스트할 땐, 비 활성화 해놓고 사용해라.
 		return http.build();
 		
 		/*
@@ -102,6 +130,11 @@ public class SecurityConfig {
 		 */
 	}
 	
+	@Bean
+	public AccessDeniedHandler accessDeniedHandler() {
+		return new CustomerAccessDeniedHandler();
+	}
+	
 	/*
 		예전에 쓰던 코드.. 인메모리 방식으로 사용자, 암호, 권한 설정해서 Test할 수 있다
 		이게 끝나면 DB작업 하면 된다고..
@@ -118,8 +151,10 @@ public class SecurityConfig {
     }
 	
 	
+    /*
+     마이바티스 사용으로 필요없어져서 주석처리함
 	@Bean
-	public UserDetailsService userDetailsService() { 
+	public UserDetailsService userDetailsService() {  */
 		/*
 		 * // 인증 권한 - (인 메모리)
 		// (PasswordEncoder passwordEncoder) 이건 빈을 일단 등록은 시켜놓아야 파라미터로 주입됨, 빈 등록없이 그냥 파라미터 선언만 한다고 자동 주입되는게 아니다..
@@ -145,6 +180,7 @@ public class SecurityConfig {
 		
 		//DB 붙임 - JDBC
 		//JDBC 연결
+		  /*
 	    JdbcUserDetailsManager userDetailsManager = new JdbcUserDetailsManager(dataSource);
 	    	
         // 사용자 정보 쿼리
@@ -159,8 +195,14 @@ public class SecurityConfig {
 		
 	}
 	
-	
+*/
 	// authenticationManager 구현하기
+	//로그인 성공시 필요한 부분 처리 
+	@Bean
+	public AuthenticationSuccessHandler authenticationSuccessHandler(){
+			return new LoginSuccessHandler();
+		}
+    
 	@Bean
 	public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration)
 			throws Exception {

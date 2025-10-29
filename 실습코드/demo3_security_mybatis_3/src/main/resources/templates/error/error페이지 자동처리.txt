@@ -1,0 +1,6 @@
+resources/templates/error/ 안에서   정해진 규칙 ....
+
+[에러번호]로 페이지 만들면 
+400.html
+타입리프에서 자동으로 에러 페이지 반환 ..... 
+AccessDeniedException 또는 HttpStatus.FORBIDDEN

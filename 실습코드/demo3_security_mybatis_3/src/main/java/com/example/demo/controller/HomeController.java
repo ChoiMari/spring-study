@@ -1,9 +1,10 @@
 package com.example.demo.controller;
 
 
-
 import java.security.Principal;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -12,27 +13,26 @@ import org.springframework.web.bind.annotation.PostMapping;
 import com.example.demo.dto.Users;
 import com.example.demo.service.UserService;
 
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.security.core.Authentication;
 
-@Controller
 @Slf4j
-@RequiredArgsConstructor
+@Controller
 public class HomeController {
+
+	@Autowired
+	private UserService userService;  //회원가입 , 로그인
 	
-	private final UserService userService;
 	
-	@GetMapping({"", "/"})
-	public String home(Model model, Principal principal) {
-		//인증 객체를 파라미터로 받을 수 있다 -> 프린시펄 객체
-		// 프린시펄 객체는 인증정보가 있다
-		String loginId= principal != null ? principal.getName() : "guest";
-		model.addAttribute("loginId",loginId);
+	@GetMapping({"","/"})
+	public String home(Model model , Principal principal) {
+		
+		String loginId = principal != null ? principal.getName() : "guest";
+		model.addAttribute("loginId", loginId);
+		
 		return "index";
 	}
 	
-	/***
+    /***
      * 
      * @param auth
      * @param model
@@ -49,21 +49,21 @@ public class HomeController {
     
     @GetMapping("/login")
     public String login(){
-        log.info("로그인 처리 화면");
-       
+        log.info("로그인 처리  화면");
         return "/login";
     }
     
-    @GetMapping("/join") //화면보여주 
+    @GetMapping("/join") 
     public String join(){
         log.info("회원 가입 처리 화면");
         return "/join";
     }
 
 
-    @PostMapping("/join") //회원가입 처리해주 
+    @PostMapping("/join") //실 회원가입
     public String joinPro(Users user) throws  Exception {
-        int result = userService.join(user);
+        
+    	int result =userService.join(user);
 
         if(result > 0 ){
             return "redirect:/login";
@@ -72,5 +72,4 @@ public class HomeController {
         return "redirect:/join?error";
 
     }
-	
 }
