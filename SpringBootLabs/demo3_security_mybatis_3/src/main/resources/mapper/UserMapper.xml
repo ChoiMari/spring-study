@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- 
+	//로그인 사용자 인증을 처리하는 메서드
+	Users login(String username); // 로그인 아이디로 select
+	
+	//회원 가입
+	int join(Users user) throws Exception;
+	
+	//회원 가입 권한 등록(트랜잭션, PL/SQL 트리거)
+	int insertAuth(UserAuth usre) throws Exception;
+
+ -->
+<mapper namespace="com.example.demo.mapper.UserMapper">
+	<resultMap type="Users" id="userMap">
+        <id     property="userNo"  column="user_no" />
+        <result property="userId"  column="user_id" />
+        <result property="userPw"  column="user_pw" />
+        <result property="name"    column="name" />
+        <result property="email"   column="email" />
+        <result property="enabled" column="enabled" />
+        <result property="regDate" column="reg_date" />
+        <result property="updDate" column="upd_date" />
+
+        <collection property="authList" resultMap="authMap"></collection>
+    </resultMap>
+    <!-- .프로퍼티 파일에서 alias 잡아서 type을 짧게 잡음 
+    mybatis.type-aliases-package=com.example.demo.dto
+    	type="com.example.demo.dto.Users"
+     	type="com.example.demo.dto.UserAuth"
+    -->
+    <resultMap type="UserAuth" id="authMap">
+    	<result property="userId" column="user_id"/>
+    	<result property="auth" column="auth"/>
+    </resultMap>
+</mapper>
