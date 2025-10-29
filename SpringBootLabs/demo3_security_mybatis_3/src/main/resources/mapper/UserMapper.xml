@@ -1,16 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<!-- 
-	//로그인 사용자 인증을 처리하는 메서드
-	Users login(String username); // 로그인 아이디로 select
-	
-	//회원 가입
-	int join(Users user) throws Exception;
-	
-	//회원 가입 권한 등록(트랜잭션, PL/SQL 트리거)
-	int insertAuth(UserAuth usre) throws Exception;
 
- -->
 <mapper namespace="com.example.demo.mapper.UserMapper">
 	<resultMap type="Users" id="userMap">
         <id     property="userNo"  column="user_no" />
@@ -33,4 +23,42 @@
     	<result property="userId" column="user_id"/>
     	<result property="auth" column="auth"/>
     </resultMap>
+    
+    <!-- 
+		//로그인 사용자 인증을 처리하는 메서드
+		Users login(String username); // 로그인 아이디로 select
+		
+		//회원 가입
+		int join(Users user) throws Exception;
+		
+		//회원 가입 권한 등록(트랜잭션, PL/SQL 트리거)
+		int insertAuth(UserAuth usre) throws Exception;
+	 -->
+	 <select id="login" resultMap="userMap">
+	 	select u.user_no, u.user_id, u.user_pw, u.name, u.email, 
+		u.enabled, u.reg_date, u.upd_date, a.auth
+		from user u join user_auth a 
+		on u.user_id = a.user_id
+		where u.user_id = '#{userId}'
+	 </select>
+	 <!-- 
+	 	시큐리티를 사용하면, 회원가입 시 권한(Role)도 같이 부여해야한다
+	 	1. default로 role을 ROLE_USER로 주겠다.
+	 	2. 이게 싫으면 @Transation처리해서 쿼리 2번 실행
+	 	3. 이것도 싫으면 PL-SQL로 트리거 사용
+	 	
+	 	3가지 방법 중
+	 	강사님은 트리거 쓰신다고 하심
+	  -->
+	 <insert id="join" parameterType="Users">
+	 	insert into user(user_id, user_pw, name, email)
+	 	values(#{userId}, #{userPw}, #{name}, #{email})
+	 </insert>
+	 
+	 <!-- 권한 등록 insert문 -->
+	 <insert id="insertAuth" parameterType="UserAuth">
+	 	insert into user_auth(user_id, auth)
+	 	values(#{userId}, #{auth})
+	 </insert>
+	 
 </mapper>
