@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<!-- 접두어 설정, 타임리프에서 시큐리티 부분을 스크립트로 제어 할 수 있다 -->
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+</head>
+<body>
+		loginId : <span th:text="${loginId}"></span>
+		<!--  -->
+		<th:block sec:authorize="hasAnyRole('ROLE_USER','ROLE_ADMIN')">
+			<li><a href="/user">사용자</a></li>
+		</th:block>
+		<th:block sec:authorize="hasAnyRole('ROLE_ADMIN')">
+			<li><a href="/admin">관리자</a></li>
+		</th:block>
+		<!-- 비 로그인 시 -->
+		<th:block sec:authorize="isAnonymous()">
+			<li>
+				<a href="/login">로그인</a>
+				<a href="/join">회원가입</a>
+			</li>
+		</th:block>
+		<!-- 로그인 시  -->
+		<th:block sec:authorize="isAuthenticated">
+			<li>
+				<a href="/logout">로그아웃</a>
+			</li>
+		</th:block>
+		
+	</ul>
+</body>
+</html>
