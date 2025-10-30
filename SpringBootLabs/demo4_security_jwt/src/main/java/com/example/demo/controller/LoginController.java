@@ -6,14 +6,18 @@ import java.util.List;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.demo.contants.SecurityConstants;
 import com.example.demo.domain.AuthenticationRequest;
 import com.example.demo.prop.JwtProps;
 
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.Jws;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
 import lombok.RequiredArgsConstructor;
@@ -78,6 +82,27 @@ public class LoginController {
 		return new ResponseEntity<String>(jwt, HttpStatus.OK);
 	}
 	
+	
+	/*
+	react 에서는 받는 토큰을 어떻게 할까요 ^^
+	 
+	// 로그인 요청 후 토큰 저장
+	axios.post('/api/login', { username, password })
+	  .then(res => {
+	    const token = res.data.token;
+	    localStorage.setItem('token', token);
+	  });
+
+	// 요청 시 토큰 헤더에 추가
+	axios.get('/api/user', {
+	  headers: {
+	    Authorization: `Bearer ${localStorage.getItem('token')}`
+	  }
+	}); 
+	  
+	  
+	 */
+	
 	/*
 	토큰 만들기
 	1. Keys.hmacShaKeyFor(signingKey) 키 제공하기 
@@ -124,4 +149,56 @@ public class LoginController {
 		데이터를 실어 보내는 것이 [[무상태 구조이다]]
         
 	*/
+	
+	
+	/*
+	 전제 조건
+	 클라이언트에서 이렇게 전송함
+	headers: {
+	    Authorization: `Bearer ${localStorage.getItem('token')}` 
+	 */
+	//@RequestHeader  : 헤더 값을 받을 수 있음
+	@GetMapping("/user/info")
+	public ResponseEntity<?> userInfo(@RequestHeader(name="Authorization") String header){
+		//header : Bearer ${localStorage.getItem('token')
+		log.info("[header 정보] Authorization : {}", header);
+		
+		//서명 가지고 오기
+		String secretkey = jwtProps.getSecretKey();
+		
+		// 서명이 사용될 땐, 토큰 사용 시에는 반드시 바이트 배열로 변환시켜야한다(약속)
+		byte[] signingkey = jwtProps.getSecretKey().getBytes(); // 실제 토큰에 들어갈 값
+		
+		//전송된 데이터 -> Bearer ${localStorage.getItem('token')
+		//Bearer와 공백을 제거
+		String jwt = header.replace(SecurityConstants.TOKEN_PREFIX, "");
+		//TOKEN_PREFIX값을 빈문자열로 바꿈
+				
+		//토큰 해석
+		Jws<Claims> parsedToken = Jwts.parser()
+				.verifyWith(Keys.hmacShaKeyFor(signingkey))
+				.build()
+				.parseSignedClaims(jwt);
+		
+		log.info("parsedToken : {}", parsedToken);
+		
+		//페이로드만 뽑아냄
+		String username = parsedToken.getPayload().get("uid").toString();
+		log.info("username : {}", username);
+		
+		Claims claims = parsedToken.getPayload();
+		//데이터 username, roles
+		
+		Object roles = claims.get("role");
+		log.info("roles : {}", roles);
+		
+		return new ResponseEntity<String>(parsedToken.toString(), HttpStatus.OK);
+	}
+	
+	/*
+	 header={typ=JWT, alg=HS512},
+	 payload={exp=1761876596, uid=hong, role=[ROLE_USER, ROLE_ADMIN]},
+	 signature=jQC00rZft5nrip26fH0ayRAHq9mPybodsjBK9KkanUVj148Y8H9EBE9rMgN5gk0DtHgF8lR2n4-YhgmtI-lUcw 
+	 */
+	
 }
