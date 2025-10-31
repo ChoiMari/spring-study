@@ -1,0 +1,185 @@
+1. 회원가입
+http://localhost:8090/register   POST
+
+body 
+{
+    "username":"kim",
+    "password":"1004"
+}
+>>>>>>>>>>>>>>>>>
+
+2. 로그인
+http://localhost:8090/login   POST
+
+body 
+{
+    "username":"kim",
+    "password":"1004"
+}
+
+인증되면 JWT 토큰 ( 
+eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJleHAiOjE3NDY4NDQ4NjAsInVpZCI6ImtpbSIsInJvbCI6WyJST0xFX0FETUlOIl19.uBfKMDxPHBbVzozc4tbgVLz4mBdrYlYEFPMcaCZieH065edLB6dxXobY8KN3HrNcBy5TOH72-YqgINFfvwU1IA
+
+>>>>>>>>>>>>>>>>>>>>
+
+3. TEST
+http://localhost:8090/user/info  요청은 ROLE_USER 권한만
+http://localhost:8090/admin/info 요청은 ROLE_ADMIN 권한만 
+
+
+1	hong	$2a$10$WYg9VQaXwQvLX5hsq.SfausDuc3LC1GjZZsH1Y2rq9yK/URRXzJMS	ROLE_USER
+2	kim	    $2a$10$UUU26iun207AQUn6k68GBuipe7.R46fHL3VDM9e7Ath9QNFoF6boe	ROLE_ADMIN
+----------------------------------------------------------
+POSTMAN 테스트 하기
+-------------------------------------------------------------------------	
+@PostMapping("login")
+public ResponseEntity<?> login(@RequestBody AuthenticationRequest  request)
+
+을 사용하셔서 토큰 정보 얻으세요
+
+POST   localhost:8080/login
+
+body  raw
+{
+	"username":"kgim",
+	"password":"1"
+}
+---------------------------------------------------------------------------
+서버가 토큰 만들어서 전달
+
+eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJleHAiOjE3MjUwNjcxODksInVpZCI6ImtnaW0iLCJyb2wiOlsiUk9MRV9VU0VSIiwiUk9MRV9BRE1JTiJdfQ.3hiDhF9JLk6hWRurZoftsWdxQL8doPvxa1NpxW8MNas
+
+POSTMAN
+
+GET  localhost:8080/user/info 
+
+header 정보를 추가
+Authorization   : Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJleHAiOjE3MjUwNjcxODksInVpZCI6ImtnaW0iLCJyb2wiOlsiUk9MRV9VU0VSIiwiUk9MRV9BRE1JTiJdfQ.3hiDhF9JLk6hWRurZoftsWdxQL8doPvxa1NpxW8MNas
+
+전송 .....
+성공 : 테스트 한 권한이 :  ROLE_USER
+그림 >> 필터 권한 테스트_1.png
+-----------------------------------------------------------------------------
+권한 위배 테스트
+
+GET  localhost:8080/admin/aaaa
+
+토큰이 가지는 권한  USER
+403  필터 권한 테스트 (실패) 
+------------------------------------------------------------------------------
+정상권한  테스트
+
+GET  localhost:8080/admin/aaaa
+
+토큰이 가지는 권한  admin
+404  정상 건
+------------------------------------------------------------------------------
+------------------------------------------------------------------------------
+
+
+테스트 완료
+
+이제  LoginController 에서
+실제 로그인 처리와 ..... 회원가입 처리를 완성 하겠습니다
+
+
+
+-------------------------------------------------------------------------------
+로그인 테스트
+
+정상 ID , 정상 PWD 토큰 받는지
+
+비정상 ID , 정상 PWD  Invalid username or password
+
+비정상 ID , 비정상 PWD  Invalid username or password
+
+
+------------------------------------------------------
+
+클라이언트가 처음 로그인할 때:
+사용자가 ID/PW를 입력하고,
+
+서버가 passwordEncoder.matches()로 비밀번호를 검증한 후,
+
+유효한 사용자일 경우에만 JWT를 서명해서 발급합니다.
+
+2. 그 후 요청에서:
+클라이언트는 요청마다 JWT를 Authorization 헤더에 실어 보냅니다.
+
+서버는:
+
+해당 JWT를 **검증 (서명 확인)**하고,
+
+uid, roles 등의 Payload를 복호화해서
+
+UserDetailsService로 사용자 정보만 로딩하고,
+
+SecurityContextHolder에 인증 객체를 설정합니다.
+
+-----------------------------------------------------------------------------
+-----------------------------------------------------------------------------
+
+1. 회원가입
+http://localhost:8090/register   POST
+
+body 
+{
+    "username":"kim",
+    "password":"1004"
+}
+>>>>>>>>>>>>>>>>>
+
+2. 로그인
+http://localhost:8090/login   POST
+
+body 
+{
+    "username":"kim",
+    "password":"1004"
+}
+
+인증되면 JWT 토큰 ( 
+eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJleHAiOjE3NDY4NDQ4NjAsInVpZCI6ImtpbSIsInJvbCI6WyJST0xFX0FETUlOIl19.uBfKMDxPHBbVzozc4tbgVLz4mBdrYlYEFPMcaCZieH065edLB6dxXobY8KN3HrNcBy5TOH72-YqgINFfvwU1IA
+
+>>>>>>>>>>>>>>>>>>>>
+
+3. TEST
+http://localhost:8090/user/info  요청은 ROLE_USER 권한만
+http://localhost:8090/admin/info 요청은 ROLE_ADMIN 권한만 
+
+
+1	hong	$2a$10$WYg9VQaXwQvLX5hsq.SfausDuc3LC1GjZZsH1Y2rq9yK/URRXzJMS	ROLE_USER
+2	kim	    $2a$10$UUU26iun207AQUn6k68GBuipe7.R46fHL3VDM9e7Ath9QNFoF6boe	ROLE_ADMIN
+
+-----------------------------------------------------------------------------------
+1. http://localhost:8090/login   POST   hong으로 JWT 취득 ROLE_USER
+
+2. http://localhost:8090/user/info  실행
+   Ahthorization : Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJleHAiOjE3NDY4NTI1OTMsInVpZCI6ImtpbSIsInJvbCI6WyJST0xFX0FETUlOIl19.otvGntQuFKOMbsHCbFSAwLMEgUgRXzYmM7VlN1_IJNYEs-CzaXnoVqAotHW7fPPXUcQUj9JilRHxRkWmNZgJcA","description":"","type":"text","uuid":"914d6481-5a15-4a8a-99b4-79d23b44c0c3","enabled":true}]
+
+3. http://localhost:8090/admin/info   403 
+   Ahthorization : Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJleHAiOjE3NDY4NTI1OTMsInVpZCI6ImtpbSIsInJvbCI6WyJST0xFX0FETUlOIl19.otvGntQuFKOMbsHCbFSAwLMEgUgRXzYmM7VlN1_IJNYEs-CzaXnoVqAotHW7fPPXUcQUj9JilRHxRkWmNZ
+------------------------------------------------------------------------------------
+1. http://localhost:8090/login   POST   kim 으로 JWT 취득  ROLE_ADMIN
+
+2. http://localhost:8090/user/info  403
+   Ahthorization : Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJleHAiOjE3NDY4NTI1OTMsInVpZCI6ImtpbSIsInJvbCI6WyJST0xFX0FETUlOIl19.otvGntQuFKOMbsHCbFSAwLMEgUgRXzYmM7VlN1_IJNYEs-CzaXnoVqAotHW7fPPXUcQUj9JilRHxRkWmNZgJcA","description":"","type":"text","uuid":"914d6481-5a15-4a8a-99b4-79d23b44c0c3","enabled":true}]
+
+3. http://localhost:8090/admin/info   "관리자인 방가" 
+   Ahthorization : Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJleHAiOjE3NDY4NTI1OTMsInVpZCI6ImtpbSIsInJvbCI6WyJST0xFX0FETUlOIl19.otvGntQuFKOMbsHCbFSAwLMEgUgRXzYmM7VlN1_IJNYEs-
+
+---------------------------------------------------------------------------------------
+
+
+create table user2(
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    username VARCHAR(50) UNIQUE NOT NULL,
+    password VARCHAR(255) NOT NULL,
+    role VARCHAR(20) NOT NULL 
+);
+
+update user2
+set role = 'ROLE_ADMIN'
+where id=2;
+
+select * from user2;
