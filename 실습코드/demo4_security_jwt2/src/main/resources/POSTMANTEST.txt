@@ -1,3 +1,5 @@
+POSTMAN 테스트 하기
+-------------------------------------------------------------------------
 1. 회원가입
 http://localhost:8090/register   POST
 
@@ -22,10 +24,6 @@ eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJleHAiOjE3NDY4NDQ4NjAsInVpZCI6ImtpbSIsInJ
 
 >>>>>>>>>>>>>>>>>>>>
 
-eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJleHAiOjE3NjE5NzAyNjIsInVpZCI6ImtpbSIsInJvbGUiOlsiUk9MRV9VU0VSIl19.4DI6F6REMJShswKjsWUzpbvmF2IcP3L667HK4C_xQos2ZrDlbXZRVWgnIbnfM5mToKEnnyYmH_KbUnP55EwqqQ
-
-------------------------------------
-
 3. TEST
 http://localhost:8090/user/info  요청은 ROLE_USER 권한만
 http://localhost:8090/admin/info 요청은 ROLE_ADMIN 권한만 
@@ -33,8 +31,7 @@ http://localhost:8090/admin/info 요청은 ROLE_ADMIN 권한만
 
 1	hong	$2a$10$WYg9VQaXwQvLX5hsq.SfausDuc3LC1GjZZsH1Y2rq9yK/URRXzJMS	ROLE_USER
 2	kim	    $2a$10$UUU26iun207AQUn6k68GBuipe7.R46fHL3VDM9e7Ath9QNFoF6boe	ROLE_ADMIN
-----------------------------------------------------------
-POSTMAN 테스트 하기
+
 -------------------------------------------------------------------------	
 @PostMapping("login")
 public ResponseEntity<?> login(@RequestBody AuthenticationRequest  request)

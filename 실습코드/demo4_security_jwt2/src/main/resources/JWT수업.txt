@@ -1,0 +1,180 @@
+<!--
+1.  사이트 만들기
+2.  의존성
+dependencies {
+	implementation 'org.springframework.boot:spring-boot-starter-security'
+	implementation 'org.springframework.boot:spring-boot-starter-web'
+	compileOnly 'org.projectlombok:lombok'
+	developmentOnly 'org.springframework.boot:spring-boot-devtools'
+	annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor'
+	annotationProcessor 'org.projectlombok:lombok'
+	testImplementation 'org.springframework.boot:spring-boot-starter-test'
+	testImplementation 'org.springframework.security:spring-security-test'
+	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+	
+	// jwt  Spring 제공하지 않아요 (별도로 추가 (검색))
+	implementation 'io.jsonwebtoken:jjwt-api:0.12.3'
+	runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.12.3'
+	runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.12.3'
+	
+3. 	implementation 'org.springframework.boot:spring-boot-starter-security'
+    테스트
+    서버 실행
+    자동 로그인 창
+    :user
+    :Using generated security password: 451a506e-4325-4eb7-bb70-11af40f32811
+    
+    접속 .....
+-----------------------------------------------------------------------------
+JWT 
+JSON WEB TOKEN 방식의 인증처리
+
+Session 인증하지 않겠다 .  CSRF 않겠다  ... 설정은 diabled 
+1. config  package  : security 설정 (....) Token 사용 ... 나머지 중지 ....
+2. controller
+3. domain
+4. prop
+5. contants  : 사이트 사용하는 필수 값 (상수화 )
+
+-------------------------------------------------------------
+1. application.properties 
+설정
+-포트  >> server.port=8090
+
+-DB   >> DB 연결 , Pool (하카리)
+-mybatis 설정 >> mapper 등 설정
+
+
+-JWT 사용할 시크릿키 만들기
+https://passwords-generator.org/
+
+
+
+HS512 : 512비트 (64바이트) ..
+com.example.demose.secret-key=UZ4p'lJj!wY.`~Nt)u{v:Ir!{[,\2C4n4GJ+H>ct[=K}$9wQm*`,}EY?YEjcE:)
+
+                          ]0V'7anwJ~^p7>vNcdr'Hdmlpx,7UhpE6HUc!Xrlr@cHNJh2iNoFrg8EB|LOE;f:
+
+---------------------------------------------------------------
+시큐리티 설정 파일
+
+레거시 : xml (security.xml 설정 ..) 또는 java (@configuration 환경설정...)
+boot : xml(x) .. 모든 설정은 JAVA 
+
+---------------------------------------------------------------
+2. SecurityConfig
+
+   filter  환경설정
+   필요하지 않은 filter  에 disabled 
+   http.formLogin((login) -> login.disable());  등등 ...
+
+---------------------------------------------------------------
+클라이언트는 받은 토큰 정보를 
+header 에서
+{
+   Ahthorization: Bearer ${jwt}
+}
+
+이런식으로 전달  .... 그럼 서버에서 Bearer 제외하고 >> jwt 토큰 정보를 활용 
+
+그럼 HTTP 프로토콜을 통해서
+headers : {Ahthorization: Bearer ${jwt}}  전달 ....
+
+------------------------------------------------------------------
+3. SecurityConstants 
+   필요한 상수 정의
+   Ahthorization
+   Bearer
+   JWT 
+
+------------------------------------------------------------------
+4. prop > 속성 제어 (application.properties 자원을)
+   JwtProp.java > application.properties 접근 > key
+annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor' 주입
+
+application.properties 안에 있는 정보를 read 
+
+------------------------------------------------------------------
+5. domain (업무 : dto , vo)
+@Data
+public class AuthenticationRequest {
+	
+	private String username;
+	private String password;
+}
+
+사용자로 부터 입력된  데이터 관리  ...
+
+-------------------------------------------------------------------
+6. Controller 구성하기
+
+6.1 요청정보 (username, password) 받기
+
+우리는 무조건 .... token 생성 .... 던지기 (클라이언트)
+
+두개의 함수 구현하기
+
+1. 요청 받아서 토큰 생성 함수
+
+2. 토큰 받아서 정보 파악하기 함수 
+
+-------------------------------------------------------
+
+864000000 밀리초 
+시간계산하기 
+1000 * 60 * 60 * 24 * 10은 10일을 의미합니다.
+
+계산 과정은 다음과 같습니다:
+
+1초 = 1000밀리초
+1분 = 60초 = 1000 * 60밀리초
+1시간 = 60분 = 1000 * 60 * 60밀리초
+1일 = 24시간 = 1000 * 60 * 60 * 24밀리초
+
+
+1000×60×60×24=1일(밀리초로표현)
+1000×60×60×24=1일(밀리초로표현)
+여기에 10을 곱하면 10일이 됩니다.
+그래서 1000 * 60 * 60 * 24 * 10은 10일입니다.
+
+--------------------------------------------------------------------
+장점
+1. 헤더와 페이로드를 가지고 서명 필드를 생성하므로 데이터 변조 후 재전송을 막을 수 있습니다.
+2. stateless 서버를 만들 수 있습니다.
+모바일 어플리케이션에서도 잘 동작합니다.
+인증정보를 다른 웹서비스에 전송할 수 있습니다. (OAuth)
+
+단점
+여전히 누구나 디코딩이 가능하므로 데이터 유출이 발생할 수 있습니다.
+토큰을 탈취당할 경우, 대처하기 어렵다. (유효기간을 기다리거나 token refresh를 해야한다)
+JWT의 경우, 토큰의 길이가 길기 때문에 요청이 많아질수록 서버 자원의 낭비가 많아진다.
+
+
+[[ 학생들에게 전달해야 하는 기초 지식  ]] 
+
+Bearer 토큰  ( [소유자라는 뜻]  이 토큰의 소유자에게 권한을 부여해주 라고 해석 ^^)
+Bearer 토큰은 OAuth 프레임워크에서 액세스 토큰으로 사용하는 토큰의 유형이에요.
+
+
+https://inpa.tistory.com/entry/WEB-%F0%9F%93%9A-Stateful-Stateless-%EC%A0%95%EB%A6%AC
+
+클라이언트(Client)와 서버(Server)간의 통신을   상태유지(Stateful) 하느냐, 
+                                       상태유지하지않음(Stateless) 으로 하느냐
+
+
+Stateless (무상태)
+무상태는 반대로 클라이언트와 서버 관계에서 서버가 클라이언트의 상태를 보존하지 않음을 의미한다.
+
+Stateless 구조에서 
+서버는 단순히 요청이 오면 응답을 보내는 역할만 수행하며, [[상태 관리는 전적으로 클라이언트에게 책임]]이 있는 것이다.
+즉, 클라이언트와 서버간의 통신에 필요한 모든 상태 정보들은 클라이언트에서 가지고 있다가 서버와 통신할때 데이터를 실어 보내는 것이 무상태 구조이다.
+--------------------------------------------------------------------------------------------------------
+상식정보
+
+클레임(Claim) 토큰 기반의 인증
+클레임이란 사용자 정보나 데이터 속성등을 의미한다. 
+그래서 클레임 토큰 이라고 하면 토큰 안에 사용자 정보나 데이터 속성들을 담고있는 토큰이라 생각하면 되고, 
+이런 클레임을 기반한 토큰 중 가장 대표적인 것이 JWT가 있다
+
+-->
+​
