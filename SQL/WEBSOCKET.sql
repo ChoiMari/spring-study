@@ -1,0 +1,125 @@
+-- 로그인
+CREATE TABLE USERS (
+    ID          NUMBER(10) PRIMARY KEY,
+    USERNAME    VARCHAR2(50) UNIQUE NOT NULL,
+    PASSWORD    VARCHAR2(200) NOT NULL,   -- BCrypt 암호화된 비밀번호
+    NAME        VARCHAR2(100),
+    REG_DATE    DATE DEFAULT SYSDATE
+);
+--사용자 정보는 로그인/인증용으로만 사용되며,
+--비밀번호는 BCryptEncoder로 단방향 암호화되어 저장
+--PK값(ID)은 JPA에서 시퀀스(SEQ_USER)로 자동 주입되며 트리거 불필요.
+-- JPA에서 @SequenceGenerator로 연결
+
+CREATE SEQUENCE SEQ_USER
+    START WITH 1
+    INCREMENT BY 1
+    NOCACHE
+    NOCYCLE;
+
+-- 채팅방
+CREATE TABLE CHAT_ROOM (
+    ID          NUMBER PRIMARY KEY,  -- 채팅방 고유 ID
+    ROOM_NAME   VARCHAR2(100) NOT NULL, -- 채팅방 이름
+    CREATED_AT  DATE DEFAULT SYSDATE    -- 채팅방 생성일시
+);
+--하나의 방은 여러 사용자가 참여할 수 있음 (1:N 구조)
+
+
+-- ROOM_ID 자동 증가용 시퀀스
+CREATE SEQUENCE SEQ_CHAT_ROOM
+    START WITH 1
+    INCREMENT BY 1
+    NOCACHE
+    NOCYCLE;
+    
+-- CHAT_PARTICIPANT (채팅방 참가자)
+CREATE TABLE CHAT_PARTICIPANT (
+    ID               NUMBER PRIMARY KEY, -- 참가자 고유 ID
+    ROOM_ID          NUMBER NOT NULL,    -- 참가 중인 방 ID (CHAT_ROOM.FK)
+    USER_ID          NUMBER NOT NULL,    -- 참가자 ID (USERS.FK)
+    JOINED_AT        DATE DEFAULT SYSDATE, -- 방 입장 시각
+    LAST_READ_MSG_ID NUMBER,               -- 마지막으로 읽은 메시지 ID (읽음표시용)
+    IS_ACTIVE        CHAR(1) DEFAULT 'Y' 
+                    CHECK (IS_ACTIVE IN ('Y','N')), -- 현재 방 참여 상태 (Y:참여중, N:나감)
+    ROLE             VARCHAR2(20) DEFAULT 'MEMBER', -- 방 내 역할 (OWNER / MEMBER)
+
+    CONSTRAINT FK_PARTICIPANT_ROOM
+        FOREIGN KEY (ROOM_ID) REFERENCES CHAT_ROOM(ID),
+    CONSTRAINT FK_PARTICIPANT_USER
+        FOREIGN KEY (USER_ID) REFERENCES USERS(ID)
+);
+-- 한 사용자는 여러 채팅방에 참여 가능 (N:N 관계의 중간 테이블 역할)
+-- IS_ACTIVE 기본값 'Y'는 “입장 시점에 자동으로 참여중” 상태를 의미
+-- 나가기 처리 시 UPDATE로 IS_ACTIVE='N' 설정 (DELETE는 이력 유지가 안됨)
+-- 퇴장시 UPDATE로 관리 soft delete 방식
+
+
+
+-- PARTICIPANT_ID 자동 증가용 시퀀스
+CREATE SEQUENCE SEQ_CHAT_PARTICIPANT
+    START WITH 1
+    INCREMENT BY 1
+    NOCACHE
+    NOCYCLE;
+    
+    
+-- CHAT_MESSAGE (채팅 메시지 기록)
+CREATE TABLE CHAT_MESSAGE (
+    ID      NUMBER PRIMARY KEY,       -- 메시지 고유 ID
+    ROOM_ID     NUMBER NOT NULL,      -- 소속 채팅방 ID (FK: CHAT_ROOM.ID)
+    USER_ID   NUMBER NOT NULL,      -- 보낸 사용자 ID (FK: USERS.ID)
+    CONTENT     VARCHAR2(500) NOT NULL,   -- 메시지 내용
+    CREATED_AT  DATE DEFAULT SYSDATE,     -- 메시지 보낸 시각
+
+    CONSTRAINT FK_MESSAGE_ROOM
+        FOREIGN KEY (ROOM_ID) REFERENCES CHAT_ROOM(ID),
+    CONSTRAINT FK_MESSAGE_USER
+        FOREIGN KEY (USER_ID) REFERENCES USERS(ID)
+);
+-- 채팅 메시지 저장용 테이블
+-- ROOM_ID로 조회 시 특정 방의 대화내역 불러오기 가능
+-- 최근 30개 메시지 로드 
+/*
+SELECT * FROM CHAT_MESSAGE WHERE ROOM_ID = :roomId
+ORDER BY CREATED_AT DESC FETCH FIRST 30 ROWS ONLY;
+*/
+
+-- MSG_ID 자동 증가용 시퀀스
+CREATE SEQUENCE SEQ_CHAT_MESSAGE
+    START WITH 1
+    INCREMENT BY 1
+    NOCACHE
+    NOCYCLE;
+    
+-- NOTIFICATION (알림 기록)
+CREATE TABLE NOTIFICATION (
+    ID   NUMBER PRIMARY KEY,    -- 알림 고유 ID
+    USER_ID     NUMBER NOT NULL,         -- 알림 대상 사용자 ID (USERS.FK)
+    TYPE        VARCHAR2(50) NOT NULL,   -- 알림 유형 (CHAT / SYSTEM / COMMENT 등)
+    TITLE       VARCHAR2(200),           -- 알림 제목 (선택)
+    MESSAGE     VARCHAR2(500),           -- 알림 본문 내용
+    IS_READ     CHAR(1) DEFAULT 'N' 
+                    CHECK (IS_READ IN ('Y','N')),        -- 읽음 여부 (N: 안읽음, Y: 읽음)
+    CREATED_AT  DATE DEFAULT SYSDATE,                    -- 알림 생성 시간
+
+    CONSTRAINT FK_NOTIFY_USER
+        FOREIGN KEY (USER_ID) REFERENCES USERS(ID)
+);
+
+-- 새 메시지나 시스템 이벤트 발생 시 알림 저장
+-- IS_READ = 'N'이면 UI에서 안읽은 상태로 표시
+-- 알림 클릭 시 UPDATE SET IS_READ='Y' 처리
+
+
+-- NOTIFY_ID 자동 증가용 시퀀스
+CREATE SEQUENCE SEQ_NOTIFICATION
+    START WITH 1
+    INCREMENT BY 1
+    NOCACHE
+    NOCYCLE;
+    
+-- INDEX (조회 성능 향상용)
+CREATE INDEX IDX_MSG_ROOM_ID ON CHAT_MESSAGE(ROOM_ID);       -- 채팅방별 메시지 조회 성능 개선
+CREATE INDEX IDX_PART_USER_ID ON CHAT_PARTICIPANT(USER_ID);  -- 사용자별 참여방 빠른 조회
+CREATE INDEX IDX_NOTIFY_USER_ID ON NOTIFICATION(USER_ID);    -- 사용자별 알림 조회 속도 개선
