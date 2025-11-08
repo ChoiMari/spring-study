@@ -154,6 +154,8 @@ public class ChatRoomController {
 		return ResponseEntity.ok(participants);
 	}
 	
+	
+	
 	// 채팅방 없애기 API
 	@DeleteMapping("/{roomId}")
 	public ResponseEntity<Void> deleteRoom(

@@ -57,7 +57,7 @@ public class ChatInviteService {
         for (Long userId : dto.getInviteeIds()) {
 
             // 이미 참여 중인 사용자면 패스
-            if (participantRepo.existsByRoomIdAndUserId(room.getId(), userId)) continue;
+            if (participantRepo.existsUserInRoom(room.getId(), userId)) continue;
 
             // 초대 대상자 유효성 검사
             User invitee = userRepo.findById(userId)
