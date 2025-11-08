@@ -53,4 +53,28 @@ public class ChatParticipant { //채팅방 참가자
 	@Column(nullable = false,length = 20)
 	private ChatRole role; //방 내 역할
 	
+	// setter메서드 안 만들어서 쓰는게 권장 사항이기 때문에
+	// 도메인 메서드로 대체함
+	 /** 채팅방 나가기(비활성화 처리) */
+	public void deactivate() {
+	    if (this.isActive.equals("N")) return; // 이미 비활성 상태면 무시
+	    this.isActive = "N";
+	    // 방장 권한도 해제
+	    this.role = ChatRole.MEMBER; // OWNER라도 나가면 권한 초기화
+	    // TODO: 로그 기록, 알림 이벤트 발행, 시간 기록 등 확장도 가능함
+	}
+
+    /** 마지막 읽은 메시지 ID 업데이트 */
+    public void updateLastReadMsg(Long msgId) {
+        this.lastReadMsgId = msgId;
+    }
+    
+    /**
+     * 방 내 역할 변경
+     * @param newRole 변경할 역할(OWNER/MEMBER)
+     */
+    public void changeRole(ChatRole newRole) {
+        this.role = newRole;
+    }
+	
 }
