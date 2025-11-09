@@ -16,11 +16,12 @@ import jakarta.persistence.SequenceGenerator;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 
 @Entity @NoArgsConstructor @AllArgsConstructor @Builder
-@EqualsAndHashCode @ToString
+@EqualsAndHashCode @ToString @Getter
 public class Notification {
 	@Id @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "notification_seq_gen")
 	@SequenceGenerator(name = "notification_seq_gen", sequenceName = "SEQ_NOTIFICATION", allocationSize = 1)
@@ -31,9 +32,9 @@ public class Notification {
 	@ManyToOne(fetch = FetchType.LAZY)
 	private User user; //알림 대상 사용자
 	
-	@Enumerated(EnumType.STRING)
+	@Enumerated(EnumType.STRING) //Enum을 문자열로 저장
 	@Column(nullable = false, name = "type", length = 50)
-	private NotifiType type; // 알림 유형
+	private NotificationType type; // 알림 유형
 	
 	@Column(length = 200)
 	private String title; //알림 제목

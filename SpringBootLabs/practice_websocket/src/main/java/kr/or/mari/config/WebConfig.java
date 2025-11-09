@@ -19,7 +19,7 @@ public class WebConfig {
 			@Override
 			public void addCorsMappings(CorsRegistry registry) {
 				registry.addMapping("/api/**").allowedOrigins(frontendUrl) // 리액트 주소
-						.allowedMethods("GET", "POST", "PUT", "DELETE").allowCredentials(true); // 쿠키 허용!
+						.allowedMethods("GET", "POST", "PUT", "DELETE", "PATCH").allowCredentials(true); // 쿠키 허용!
 			}
 		};
 	}

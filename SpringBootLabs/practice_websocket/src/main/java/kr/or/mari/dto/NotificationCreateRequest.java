@@ -1,5 +1,6 @@
 package kr.or.mari.dto;
 
+import kr.or.mari.domain.NotificationType;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -17,7 +18,7 @@ import lombok.ToString;
 @Builder @ToString
 public class NotificationCreateRequest {
     private Long userId;      // 알림 대상 사용자
-    private String type;      // CHAT / SYSTEM / COMMENT 등
+    private NotificationType type;    // CHAT / SYSTEM / INVITE
     private String title;     // 알림 제목
     private String message;   // 알림 본문 내용
 }
