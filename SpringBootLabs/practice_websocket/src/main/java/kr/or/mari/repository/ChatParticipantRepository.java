@@ -47,7 +47,7 @@ public interface ChatParticipantRepository
 	      사용자가 채팅방을 열었을 때, 마지막으로 본 메시지를 기록.
 	       이 값을 기준으로 안 읽은 메시지 수를 계산할 수 있음.
 	*/
-    @Modifying 
+    @Modifying(clearAutomatically = true) //clearAutomatically 실제 DB의 UPDATE 결과 간 싱크가 어긋나는 걸 방지
     @Query("UPDATE ChatParticipant cp SET cp.lastReadMsgId = :lastMsgId WHERE cp.room.id = :roomId AND cp.user.id = :userId")
     int updateLastReadMessage(
         @Param("roomId") Long roomId,
@@ -56,7 +56,13 @@ public interface ChatParticipantRepository
     );
 
     //사용자의 마지막 읽은 메시지 이후에 남아 있는 '안 읽은 메시지 수'를 계산하는 메서드.
-    @Query("SELECT COUNT(m) FROM ChatMessage m WHERE m.room.id = :roomId AND m.id > :lastMsgId")
+    //@Query("SELECT COUNT(m) FROM ChatMessage m WHERE m.room.id = :roomId AND m.id > :lastMsgId")
+    @Query("""
+    	    SELECT COUNT(m)
+    	    FROM ChatMessage m
+    	    WHERE m.room.id = :roomId
+    	      AND m.id > COALESCE(:lastMsgId, 0)
+    	""")
     int countUnreadMessages(@Param("roomId") Long roomId, @Param("lastMsgId") Long lastMsgId);
     
     //특정 채팅방에 참여 중인 모든 사용자 ID 조회
