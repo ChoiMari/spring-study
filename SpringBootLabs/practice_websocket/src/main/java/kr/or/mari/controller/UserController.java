@@ -29,6 +29,14 @@ public class UserController {
 	
 	private final UserService userSvc;
 	
+	// 아이디 중복 검사
+	@GetMapping("/check")
+	public ResponseEntity<Boolean> checkUsername(@RequestParam String username) {
+	    boolean exists = userSvc.existsByUsername(username);
+	    return ResponseEntity.ok(exists);
+	}
+
+	
 	 // 회원가입
     @PostMapping("/register")
     public ResponseEntity<RegisterResponse> register(

@@ -16,6 +16,11 @@ public class UserService {
 	private final PasswordEncoder encoder; //config파일에서 bean으로 등록해야 주입 가능
 	private final UserRepository userRepo;
 	
+	//중복검사
+	public boolean existsByUsername(String username) {
+	    return userRepo.existsByUsername(username);
+	}
+	
 	// 회원가입
     public RegisterResponse register(RegisterRequest dto) {
     	//비밀번호 암호화
