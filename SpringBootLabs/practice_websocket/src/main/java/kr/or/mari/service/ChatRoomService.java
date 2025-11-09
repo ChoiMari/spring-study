@@ -115,7 +115,17 @@ public class ChatRoomService {
     //내가 속한 모든 채팅방 목록 조회
     @Transactional(readOnly = true)
     public List<ChatRoomResponse> getRoomsByUser(Long userId) {
-        return chatRoomRepo.findRoomsByUserId(userId);
+        //return chatRoomRepo.findRoomsByUserId(userId);
+    	return chatRoomRepo.findRoomsByUserId(userId).stream()
+                .map(room -> ChatRoomResponse.builder()
+                        .roomId(room.getRoomId())
+                        .roomName(room.getRoomName())
+                        .ownerId(room.getOwnerId())
+                        .participantCount(room.getParticipantCount())
+                        .createdAt(room.getCreatedAt())
+                        .joined(true) //내 참여방 목록은 항상 joined 상태
+                        .build())
+                .toList();
     }
     
     // 방 나가기

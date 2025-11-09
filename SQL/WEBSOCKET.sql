@@ -26,6 +26,9 @@ CREATE TABLE CHAT_ROOM (
 --하나의 방은 여러 사용자가 참여할 수 있음 (1:N 구조)
 
 select * from users;
+delete from users;
+delete from CHAT_PARTICIPANT;
+commit;
 
 select *
 from CHAT_ROOM;
