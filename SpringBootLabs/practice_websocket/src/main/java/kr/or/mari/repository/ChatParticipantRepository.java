@@ -58,4 +58,10 @@ public interface ChatParticipantRepository
     //사용자의 마지막 읽은 메시지 이후에 남아 있는 '안 읽은 메시지 수'를 계산하는 메서드.
     @Query("SELECT COUNT(m) FROM ChatMessage m WHERE m.room.id = :roomId AND m.id > :lastMsgId")
     int countUnreadMessages(@Param("roomId") Long roomId, @Param("lastMsgId") Long lastMsgId);
+    
+    //특정 채팅방에 참여 중인 모든 사용자 ID 조회
+    //실시간 알림/브로드캐스트 시 수신자 목록으로 활용됨
+    @Query("SELECT cp.user.id FROM ChatParticipant cp " +
+            "WHERE cp.room.id = :roomId AND cp.isActive = 'Y'")
+     List<Long> findActiveUserIdsByRoomId(Long roomId);
 }

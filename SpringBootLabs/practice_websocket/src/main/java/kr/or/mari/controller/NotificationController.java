@@ -28,6 +28,12 @@ import lombok.RequiredArgsConstructor;
 public class NotificationController {
 	private final NotificationService notifySvc;
 	
+	/**
+	 * [관리자 / 시스템용 알림 생성 API]
+	 * ----------------------------------------------
+	 * 채팅 이외의 이벤트나 테스트 목적일 때만 사용
+	 * (일반 메시지 알림은 ChatMessageService에서 자동 트리거)
+	 */
 	// 알림 생성 API 
 	// 채팅 메시지 도착, 초대, 시스템 이벤트 등 알림 생성
 	// DB 저장 +  WebSocket을 통한 실시간 전송

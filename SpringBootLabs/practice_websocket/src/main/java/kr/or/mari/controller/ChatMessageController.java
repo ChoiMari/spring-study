@@ -28,7 +28,7 @@ import lombok.RequiredArgsConstructor;
 @RequestMapping("/api/chat/messages")
 public class ChatMessageController {
 	private final ChatMessageService chatMsgSvc;
-	private final SimpMessagingTemplate messagingTemplate;// WebSocket 참여자에게 실시간 전송 도구
+	//private final SimpMessagingTemplate messagingTemplate;// WebSocket 참여자에게 실시간 전송 도구
 	// 웹소캣에서 메시지를 실시간으로 특정 대상에게 보내는 스프링 내장도구
 	// 백엔드에서 클라이언트로 푸시 메시지를 보낼 떄 사용하는 핵심 클래스
 	// SimpMessagingTemplate 서버에서 웹소켓 구독자에게 실시간 메시지를 전달해주는 스프링 내장 메신저
@@ -68,7 +68,10 @@ public class ChatMessageController {
 	@MessageMapping("/chat.send")
 	public void sendMessage(ChatMessageRequest dto) {
 		//채팅 메시지 DB에 저장함
-		ChatMessageResponse saved = chatMsgSvc.saveMessage(dto);
+		//ChatMessageResponse saved = chatMsgSvc.saveMessage(dto);
+        chatMsgSvc.saveMessage(dto);
+        // 컨트롤러는 메시지를 받기만 하고,
+        // 실제 DB 저장 및 브로드캐스트, 알림 푸시는 Service에서 처리
 		
 		// 구독 경로
 		//topic/chat/ 같은 경로는 스프링 STOMP(웹소켓 메시지 시스템의 약속된 관습)
@@ -89,9 +92,10 @@ public class ChatMessageController {
 		  예시) /topic/chat/1은 “채팅방 1번을 구독 중인 모든 사용자에게 보내라”는 뜻
 		 */
 		// 방 참가자들에게 실시간으로 전송함(브로드캐스트)
-		messagingTemplate.convertAndSend("/topic/chat/" + dto.getRoomId(), saved);
-		///topic/chat/{roomId}를 구독 중인 모든 클라이언트에게
+		//messagingTemplate.convertAndSend("/topic/chat/" + dto.getRoomId(), saved);
+		//topic/chat/{roomId}를 구독 중인 모든 클라이언트에게
 		//saved 메시지를 실시간으로 전송하라
+		//-> 서비스 계층 로직으로 변경함
 		
 	}
 	
