@@ -44,7 +44,13 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer{
 	@Override
 	public void registerStompEndpoints(StompEndpointRegistry registry) {
         registry.addEndpoint("/ws-stomp")       // 연결 URL (예: ws://localhost:8090/ws-stomp)
-        .setAllowedOriginPatterns(frontendUrl)  // CORS 허용
+        //.setAllowedOriginPatterns(frontendUrl)  // CORS 허용
+        // 개발 중엔 로컬 전체 허용 (IP나 포트가 바뀌어도 됨)
+        .setAllowedOriginPatterns(
+            "http://localhost:*",
+            "http://127.0.0.1:*",
+            "http://192.168.*:*"
+        )
         .withSockJS();                  // SockJS fallback 활성화
 	}
 

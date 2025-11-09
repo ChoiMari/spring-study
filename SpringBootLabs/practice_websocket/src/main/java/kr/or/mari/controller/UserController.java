@@ -17,6 +17,7 @@ import kr.or.mari.dto.RegisterRequest;
 import kr.or.mari.dto.RegisterResponse;
 import kr.or.mari.service.UserService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * 로그인
@@ -25,13 +26,15 @@ import lombok.RequiredArgsConstructor;
 @RestController
 @RequiredArgsConstructor 
 @RequestMapping("/api/users")
+@Slf4j
 public class UserController {
 	
 	private final UserService userSvc;
 	
 	// 아이디 중복 검사
 	@GetMapping("/check")
-	public ResponseEntity<Boolean> checkUsername(@RequestParam String username) {
+	public ResponseEntity<Boolean> checkUsername(@RequestParam("username") String username) {
+		log.debug(username);
 	    boolean exists = userSvc.existsByUsername(username);
 	    return ResponseEntity.ok(exists);
 	}

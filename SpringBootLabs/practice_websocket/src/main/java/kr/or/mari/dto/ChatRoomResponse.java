@@ -23,6 +23,8 @@ public class ChatRoomResponse {
     private Long ownerId;             // 방장 ID
     private int participantCount;     // 현재 참여자 수
     private LocalDateTime createdAt;  // 생성 시간
+    private boolean joined; //현재 로그인 사용자가 참가 중인지 여부
+    //DB에 저장하지 않는 “프론트 표시용(Transient)
     
     public ChatRoomResponse(Long roomId, String roomName, Long ownerId, Long participantCount, LocalDateTime createdAt) {
         this.roomId = roomId;

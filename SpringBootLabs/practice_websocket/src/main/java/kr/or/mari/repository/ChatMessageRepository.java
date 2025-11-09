@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import kr.or.mari.domain.ChatMessage;
 
@@ -29,6 +30,6 @@ public interface ChatMessageRepository extends JpaRepository<ChatMessage, Long> 
             )
             WHERE ROWNUM <= 30
             """, nativeQuery = true)
-    List<ChatMessage> findRecentMessages(Long roomId);
+    List<ChatMessage> findRecentMessages(@Param("roomId") Long roomId);
 	
 }

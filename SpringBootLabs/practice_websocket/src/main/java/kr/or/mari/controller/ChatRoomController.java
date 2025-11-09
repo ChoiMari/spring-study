@@ -11,14 +11,15 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.SessionAttribute;
 
 import jakarta.servlet.http.HttpSession;
+import kr.or.mari.domain.User;
 import kr.or.mari.dto.ChatParticipantResponse;
 import kr.or.mari.dto.ChatRoomCreateRequest;
 import kr.or.mari.dto.ChatRoomResponse;
 import kr.or.mari.dto.LoginResponse;
 import kr.or.mari.service.ChatRoomService;
-import lombok.Delegate;
 import lombok.RequiredArgsConstructor;
 
 /**
@@ -172,5 +173,29 @@ public class ChatRoomController {
         return ResponseEntity.noContent().build();
 	}
 	
+	//모든 채팅방 목록 보기
+	@GetMapping("/list/all")
+	public ResponseEntity<List<ChatRoomResponse>> listAllRooms(HttpSession session) {
+	    LoginResponse loginUser = (LoginResponse) session.getAttribute("loginUser");
+	    if (loginUser == null) {
+	        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+	    }
+
+	    List<ChatRoomResponse> rooms = chatRoomSvc.getAllRooms(loginUser.getId());
+	    return ResponseEntity.ok(rooms);
+	}
+	
+	//채팅방 참여하기
+	@PostMapping("/{roomId}/join")
+	public ResponseEntity<Void> joinRoom(@PathVariable(name = "roomId") Long roomId, HttpSession session) {
+		//세션에서 로그인 사용자 확인
+        LoginResponse loginUser = (LoginResponse) session.getAttribute("loginUser");
+        if (loginUser == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+	    chatRoomSvc.joinRoom(roomId, loginUser.getId());
+	    return ResponseEntity.ok().build();
+	}
+
 	
 }

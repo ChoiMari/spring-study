@@ -69,5 +69,12 @@ public interface ChatParticipantRepository
     //실시간 알림/브로드캐스트 시 수신자 목록으로 활용됨
     @Query("SELECT cp.user.id FROM ChatParticipant cp " +
             "WHERE cp.room.id = :roomId AND cp.isActive = 'Y'")
-     List<Long> findActiveUserIdsByRoomId(Long roomId);
+     List<Long> findActiveUserIdsByRoomId(@Param("roomId") Long roomId);
+    
+    //전체 채팅방 조회
+    @Query("SELECT COUNT(p) > 0 FROM ChatParticipant p WHERE p.room.id = :roomId AND p.user.id = :userId AND p.isActive = 'Y'")
+    boolean existsByRoomIdAndUserId(@Param("roomId") Long roomId, @Param("userId") Long userId);
+    
+    // 특정 방 + 사용자 기준으로 존재 여부 조회
+    Optional<ChatParticipant> findByRoom_IdAndUser_Id(Long roomId, Long userId);
 }

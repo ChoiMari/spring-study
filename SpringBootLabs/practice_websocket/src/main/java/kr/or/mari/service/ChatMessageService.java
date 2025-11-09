@@ -74,7 +74,7 @@ public class ChatMessageService {
                 .senderName(sender.getName())
                 .content(entity.getContent())
                 .createdAt(entity.getCreatedAt())
-                .isMine(true)
+                //.isMine(true)
                 .build();
     	//실시간 브로드캐스트(같은 방 참여자 전체)
         messagingTemplate.convertAndSend("/topic/chat/" + room.getId(), response);
@@ -147,7 +147,7 @@ public class ChatMessageService {
                         .senderName(m.getUser().getName())    // 보낸 사용자 이름
                         .content(m.getContent())              // 메시지 본문
                         .createdAt(m.getCreatedAt())          // 생성 시각 (DB default sysdate)
-                        .isMine(false)                        // 기본 false, 프론트에서 구분 처리
+                        //.isMine(false)                        // 기본 false, 프론트에서 구분 처리
                         .build())
                 .collect(Collectors.toList());
     }

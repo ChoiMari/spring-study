@@ -2,6 +2,7 @@ package kr.or.mari.controller;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -18,6 +19,7 @@ import lombok.RequiredArgsConstructor;
 @RestController @RequiredArgsConstructor @RequestMapping("/api/chat/read")
 public class ChatReadController {
 	private final ChatReadService chatReadSvc;
+	private final SimpMessagingTemplate messagingTemplate;
 	
 	// 마지막으로 읽은 메시지 ID 갱신 요청 처리
 	//  PATCH는 자원의 “부분 업데이트”에 사용되는 HTTP 메서드.
@@ -32,10 +34,19 @@ public class ChatReadController {
 		}
 		//요청 DTO에 로그인 사용자 ID 주입
 		dto.setUserId(loginUser.getId());
-		// 읽음 상태 업데이트 실행
-		ChatReadUpdateResponse res = chatReadSvc.updateLastRead(dto);
-		// 성공적으로 갱신된 읽음 정보 반환
 		
+		// 읽음 상태 업데이트 실행(DB 반영)
+		ChatReadUpdateResponse res = chatReadSvc.updateLastRead(dto);
+		
+		//실시간 알림 전송 (같은 방 구독자에게 "읽음 이벤트" 브로드캐스트)
+        messagingTemplate.convertAndSend(
+            "/topic/chat/" + dto.getRoomId() + "/read",
+            res
+        );
+		
+		// 성공적으로 갱신된 읽음 정보 반환
 		return ResponseEntity.ok(res);
 	}
+	
+	
 }

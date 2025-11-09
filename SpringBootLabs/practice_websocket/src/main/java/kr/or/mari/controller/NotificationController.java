@@ -2,6 +2,7 @@ package kr.or.mari.controller;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -15,6 +16,7 @@ import kr.or.mari.dto.LoginResponse;
 import kr.or.mari.dto.NotificationCreateRequest;
 import kr.or.mari.dto.NotificationListResponse;
 import kr.or.mari.dto.NotificationResponse;
+import kr.or.mari.dto.NotifyEvent;
 import kr.or.mari.service.NotificationService;
 import lombok.RequiredArgsConstructor;
 /**
@@ -27,7 +29,7 @@ import lombok.RequiredArgsConstructor;
 @RestController @RequiredArgsConstructor @RequestMapping("/api/notify")
 public class NotificationController {
 	private final NotificationService notifySvc;
-	
+	private final SimpMessagingTemplate messagingTemplate;
 	/**
 	 * [관리자 / 시스템용 알림 생성 API]
 	 * ----------------------------------------------
@@ -84,6 +86,11 @@ public class NotificationController {
 		// 특정 알림 읽음 처리
 		notifySvc.markAsRead(loginUser.getId(), notifyId);
 		
+		messagingTemplate.convertAndSend(
+                "/topic/notify/" + loginUser.getId() + "/read",
+                new NotifyEvent("READ", notifyId)
+        );
+
 		return ResponseEntity.ok().build();
 		//return ResponseEntity.status(HttpStatus.NO_CONTENT).build(); // 204
 	}
@@ -99,6 +106,11 @@ public class NotificationController {
 		// 전체 알림 읽음 처리
 		notifySvc.markAllAsRead(loginUser.getId());
 		
+		// WebSocket 전송: 전체 읽음
+        messagingTemplate.convertAndSend(
+                "/topic/notify/" + loginUser.getId() + "/read/all",
+                new NotifyEvent("READ_ALL", null)
+        );
 		return ResponseEntity.ok().build();
 		//이렇게 보내도 됨, 본문 없는 성공 응답
 		//return ResponseEntity.status(HttpStatus.NO_CONTENT).build(); // 204

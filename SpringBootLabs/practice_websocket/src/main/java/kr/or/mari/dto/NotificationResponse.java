@@ -26,5 +26,6 @@ public class NotificationResponse {
     private boolean isRead; //읽음 여부 상태
     private LocalDateTime createdAt; //알림 생성 시간
     //프론트에서는 시간 순으로 정렬하거나, "n분 전" 형태로 표시할 수 있음.
+
 }
 

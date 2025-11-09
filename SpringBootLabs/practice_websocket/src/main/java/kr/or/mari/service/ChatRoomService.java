@@ -1,7 +1,9 @@
 package kr.or.mari.service;
 
+import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -189,6 +191,52 @@ public class ChatRoomService {
 
         //채팅방 삭제 (cascade로 메시지/참가자 자동 제거)
         chatRoomRepo.delete(room);
+    }
+    
+    /** 전체(오픈) 채팅방 목록 조회 */
+    @Transactional(readOnly = true)
+    public List<ChatRoomResponse> getAllRooms(Long userId) {
+        List<ChatRoom> allRooms = chatRoomRepo.findAll();
+
+        List<ChatRoomResponse> result = allRooms.stream()
+                .map((ChatRoom room) -> {
+                    boolean joined = participantRepo.existsByRoomIdAndUserId(room.getId(), userId);
+                    return ChatRoomResponse.builder()
+                            .roomId(room.getId())
+                            .roomName(room.getRoomName())
+                            .joined(joined)
+                            .build(); 
+                })
+                .collect(Collectors.toList());
+
+        return result;
+
+    }
+    
+    //로그인 한 사용자 채팅방 참여
+    public void joinRoom(Long roomId, Long userId) {
+        ChatRoom room = chatRoomRepo.findById(roomId)
+                .orElseThrow(() -> new EntityNotFoundException("채팅방을 찾을 수 없습니다."));
+        User user = userRepo.findById(userId)
+                .orElseThrow(() -> new EntityNotFoundException("사용자를 찾을 수 없습니다."));
+
+        // 이미 참가한 사용자면 재활성화
+        Optional<ChatParticipant> existingOpt = participantRepo.findByRoom_IdAndUser_Id(roomId, userId);
+        if (existingOpt.isPresent()) {
+            ChatParticipant existing = existingOpt.get();
+            existing.activate(); 
+            return;
+        }
+
+        // 처음 참여하는 사용자라면 새로 추가
+        ChatParticipant participant = ChatParticipant.builder()
+                .room(room)
+                .user(user)
+                .role(ChatRole.MEMBER)
+                .isActive("Y")
+                .build();
+
+        participantRepo.save(participant);
     }
     
 }

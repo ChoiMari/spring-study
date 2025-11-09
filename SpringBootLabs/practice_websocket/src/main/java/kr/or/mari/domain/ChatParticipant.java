@@ -76,5 +76,11 @@ public class ChatParticipant { //채팅방 참가자
     public void changeRole(ChatRole newRole) {
         this.role = newRole;
     }
+    
+    /** 채팅방 재입장(활성화 처리) */
+    public void activate() {
+        if (this.isActive.equals("Y")) return; // 이미 참여 중이면 무시
+        this.isActive = "Y";
+    }
 	
 }
