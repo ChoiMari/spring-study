@@ -29,7 +29,7 @@ select * from users;
 delete from users;
 delete from CHAT_PARTICIPANT;
 commit;
-
+delete from CHAT_ROOM;
 select *
 from CHAT_ROOM;
 
