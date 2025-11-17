@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Hello Thymeleaf</title>
+      <script type="text/javascript">
+        async function generateImage() {
+            const prompt = document.getElementById("prompt").value;
+
+            const response = await fetch("/imgGen?request=" + encodeURIComponent(prompt));
+            const imageUrl = await response.text();
+            console.log(response);
+            document.getElementById("result").src = imageUrl;
+            document.getElementById("result-container").style.display = "block";
+        }
+    </script>
+</head>
+<body>
+    <div style="text-align: center;">
+        <h2>요청 이미지 생성</h2>
+
+        <input type="text" id="prompt" placeholder="예> 수영장이 있는 호텔의 야경">
+        <button onclick="generateImage()">이미지 생성</button>
+
+        <div id="result-container" style="display: none; margin-top: 20px">
+            <h3>생성된 이미지</h3>
+            <img id="result" alt="AI이미지" src="" width="512px">
+        </div>
+    </div>
+</body>
+</html>
