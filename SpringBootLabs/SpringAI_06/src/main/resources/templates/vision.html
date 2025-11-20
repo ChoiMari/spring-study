@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="UTF-8">
+	<title>비전 - 이미지 분석</title>
+	<style type="text/css">
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 40px;
+        }
+
+        .container {
+            width: 500px;
+            margin: auto;
+        }
+
+        h2 {
+            text-align: center;
+        }
+
+        input, textarea, button {
+            width: 100%;
+            padding: 10px;
+            margin-top: 10px; /* 1-px 오타를 10px 정도로 수정했습니다 */
+        }
+
+        #resultBox {
+            margin: 20px;
+            padding: 15px;
+            background-color: #f5f5f5;
+            border: 1px solid #ccc;
+            min-height: 100px;
+            white-space: pre-line;
+        }
+    </style>
+</head>
+<body>
+	<div class="container">
+	    <h2>이미지 분석..</h2>
+	    <!-- 필요하면 th:action, th:method 사용 가능 -->
+	    <form id="visionForm"
+	          enctype="multipart/form-data"
+	          method="post"
+	          th:action="@{/upload}">
+	        <label for="message">메시지(선택사항)</label>
+	        <textarea rows="3"
+	                  name="message"
+	                  id="message"
+	                  placeholder="이미지에 대해 알고 싶은 내용을 입력하세요..."></textarea>
+	
+	        <label for="file">이미지 업로드</label>
+	        <input type="file"
+	               name="file"
+	               id="file"
+	               accept="image/*"
+	               required="required">
+	
+	        <button type="submit">분석요청</button>
+	    </form>
+	
+	    <div id="resultBox">분석 결과가 여기에 표시됩니다</div>
+	</div>
+</body>
+<script type="text/javascript">
+	document.getElementById("visionForm").addEventListener('submit', function(e){
+		e.preventDefault();
+		const formData = new FormData(this); //폼 정보 객체 형태로 다 가지고 옴
+		fetch('/upload', {
+			method:"POST",
+			body:formData
+		}).then(response => response.json())
+		.then(data => {
+			const resultBox = document.getElementById('resultBox');
+			if(data.result){
+				resultBox.textContent = data.result;
+			}else if(data.error){
+				resultBox.textContent = "오류발생 : " + data.error;
+			}else{
+				resultBox.textContent = "응답 오류 발생";
+			}
+		}).catch(err => {
+			document.getElementById('resultBox').txtContent = "요청 중 오류 발생";
+		});
+	})
+</script>
+</html>
