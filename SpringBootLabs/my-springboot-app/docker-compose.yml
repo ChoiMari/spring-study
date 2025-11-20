@@ -1,0 +1,48 @@
+version: '3.8'
+
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpass
+      MYSQL_DATABASE: springdb
+      MYSQL_USER: springuser
+      MYSQL_PASSWORD: springpass
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql-data:/var/lib/mysql
+    networks:
+      - backend
+
+  redis:
+    image: redis:7
+    container_name: redis
+    ports:
+      - "6379:6379"
+    networks:
+      - backend
+
+  springboot:
+    build: .
+    container_name: springboot
+    ports:
+      - "8080:8080"
+    depends_on:
+      - mysql
+      - redis
+    networks:
+      - backend
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/springdb
+      SPRING_DATASOURCE_USERNAME: springuser
+      SPRING_DATASOURCE_PASSWORD: springpass
+      SPRING_REDIS_HOST: redis
+      SPRING_REDIS_PORT: 6379
+
+volumes:
+  mysql-data:
+
+networks:
+  backend:
