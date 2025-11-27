@@ -1,0 +1,56 @@
+plugins {
+	id 'java'
+	id 'org.springframework.boot' version '3.5.8'
+	id 'io.spring.dependency-management' version '1.1.7'
+}
+
+group = 'kr.or.kosa'
+version = '0.0.1-SNAPSHOT'
+description = 'Demo project for Spring Boot'
+
+java {
+	toolchain {
+		languageVersion = JavaLanguageVersion.of(17)
+	}
+}
+
+configurations {
+	compileOnly {
+		extendsFrom annotationProcessor
+	}
+}
+
+repositories {
+	mavenCentral()
+}
+
+dependencies {
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+
+    compileOnly 'org.projectlombok:lombok'
+    annotationProcessor 'org.projectlombok:lombok'
+
+    developmentOnly 'org.springframework.boot:spring-boot-devtools'
+
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+
+    // Spring AI BOM: 버전 관리를 여기서 통합
+    implementation platform("org.springframework.ai:spring-ai-bom:1.1.0")
+
+    // MCP 서버용 부트 스타터 (자동으로 MCP 서버 빈/엔드포인트 구성)
+    implementation "org.springframework.ai:spring-ai-starter-mcp-server"
+
+    // WebMvc 기반 MCP 전송 레이어 (HTTP + SSE)
+    implementation "org.springframework.ai:spring-ai-starter-mcp-server-webmvc"
+
+    //이 프로젝트가 "서버" 역할만 한다면 클라이언트 스타터는 굳이 필요 없음
+    // implementation "org.springframework.ai:spring-ai-starter-mcp-client"
+
+    // JGit (로컬 Git 저장소 조작용)
+    implementation "org.eclipse.jgit:org.eclipse.jgit:7.4.0.202509020913-r"
+}
+
+tasks.named('test') {
+	useJUnitPlatform()
+}
