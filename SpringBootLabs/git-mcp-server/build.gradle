@@ -1,32 +1,76 @@
 plugins {
-	id 'java'
-	id 'org.springframework.boot' version '3.5.8'
-	id 'io.spring.dependency-management' version '1.1.7'
+    id 'java'
+    id 'org.springframework.boot' version '3.5.8'
+    id 'io.spring.dependency-management' version '1.1.7'
 }
 
 group = 'kr.or.kosa'
 version = '0.0.1-SNAPSHOT'
-description = 'Demo project for Spring Boot'
 
 java {
-	toolchain {
-		languageVersion = JavaLanguageVersion.of(17)
-	}
-}
-
-configurations {
-	compileOnly {
-		extendsFrom annotationProcessor
-	}
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(17)
+    }
 }
 
 repositories {
-	mavenCentral()
+    mavenCentral()
 }
 
 dependencies {
-    implementation 'org.springframework.boot:spring-boot-starter-web'
 
+    // Spring AI 통합 BOM
+    implementation platform("org.springframework.ai:spring-ai-bom:1.1.0")
+
+	//implementation "org.springframework.ai:spring-ai-mcp-server-spring-boot-starter"
+    //implementation "org.springframework.ai:spring-ai-mcp-server-webmvc-spring-boot-starter"
+   // implementation "org.springframework.ai:spring-ai-mcp-tool-starter"
+    //implementation "org.springframework.ai:spring-ai-mcp-tool-starter"
+    //implementation "org.springframework.ai:spring-ai-mcp-annotations"
+    
+    
+	// MCP 서버 자동 구성 스타터
+   // implementation "org.springframework.ai:spring-ai-starter-mcp-server"
+	// WebMVC 기반 전송 레이어 (엔드포인트 등록 담당)
+    //implementation "org.springframework.ai:spring-ai-starter-mcp-server-webmvc"
+	
+    // MCP Server
+    //implementation "org.springframework.ai:spring-ai-mcp-tool-starter:1.1.0"
+    //implementation "org.springframework.ai:spring-ai-mcp-server-spring-boot-starter"
+    //implementation "org.springframework.ai:spring-ai-mcp-server-webmvc-spring-boot-starter"
+    //implementation "org.springframework.ai:spring-ai-openai-spring-boot-starter"
+    // 선택: OpenAI 연결하려면
+	//implementation "org.springframework.ai:spring-ai-openai-spring-boot-starter"
+    //implementation "org.springframework.ai:spring-ai-starter-mcp-server"
+    //implementation "org.springframework.ai:spring-ai-starter-mcp-server-webmvc"
+
+
+    // Spring AI MCP Server (공식)
+    //implementation "org.springframework.ai:spring-ai-mcp-server-spring-boot-starter"
+    //implementation "org.springframework.ai:spring-ai-mcp-server-webmvc-spring-boot-starter"
+	//implementation "org.springframework.ai:spring-ai-mcp-annotations:1.1.0"
+	
+	//implementation "org.springframework.ai:spring-ai-mcp-server-spring-boot-starter:1.1.0"
+    //implementation "org.springframework.ai:spring-ai-mcp-server-webmvc-spring-boot-starter:1.1.0"
+   // implementation "org.springframework.ai:spring-ai-openai-spring-boot-starter:1.1.0"
+
+    // OpenAI (옵션)
+    //implementation "org.springframework.ai:spring-ai-openai-spring-boot-starter"
+
+    // JGit (안정 버전)
+    implementation "org.eclipse.jgit:org.eclipse.jgit:6.9.0.202403050737-r"
+	//implementation "org.eclipse.jgit:org.eclipse.jgit:7.4.0.202509020913-r"
+
+	implementation "org.springframework.ai:spring-ai-mcp-server-spring-boot-starter"
+	implementation "org.springframework.ai:spring-ai-mcp-server-webmvc-spring-boot-starter"
+	implementation "org.springframework.ai:spring-ai-openai-spring-boot-starter"
+	implementation "org.springframework.ai:spring-ai-mcp-annotations"
+	implementation "org.springframework.ai:spring-ai-starter-mcp-server"
+	implementation "org.springframework.ai:spring-ai-starter-mcp-server-webmvc"
+	implementation "org.springframework.ai:spring-ai-mcp-annotations"
+	
+
+    // Lombok
     compileOnly 'org.projectlombok:lombok'
     annotationProcessor 'org.projectlombok:lombok'
 
@@ -34,23 +78,4 @@ dependencies {
 
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
-
-    // Spring AI BOM: 버전 관리를 여기서 통합
-    implementation platform("org.springframework.ai:spring-ai-bom:1.1.0")
-
-    // MCP 서버용 부트 스타터 (자동으로 MCP 서버 빈/엔드포인트 구성)
-    implementation "org.springframework.ai:spring-ai-starter-mcp-server"
-
-    // WebMvc 기반 MCP 전송 레이어 (HTTP + SSE)
-    implementation "org.springframework.ai:spring-ai-starter-mcp-server-webmvc"
-
-    //이 프로젝트가 "서버" 역할만 한다면 클라이언트 스타터는 굳이 필요 없음
-    // implementation "org.springframework.ai:spring-ai-starter-mcp-client"
-
-    // JGit (로컬 Git 저장소 조작용)
-    implementation "org.eclipse.jgit:org.eclipse.jgit:7.4.0.202509020913-r"
-}
-
-tasks.named('test') {
-	useJUnitPlatform()
 }

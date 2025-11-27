@@ -9,6 +9,7 @@ import org.eclipse.jgit.api.Git;                         // JGit Git 객체
 import org.eclipse.jgit.lib.Ref;                        // 브랜치 Ref 타입
 import org.eclipse.jgit.storage.file.FileRepositoryBuilder;  // Git repo builder
 import org.springaicommunity.mcp.annotation.McpTool;
+//import org.springaicommunity.mcp.annotation.McpTool;
 // MCP Tool 어노테이션
 import org.springframework.stereotype.Service;
 
@@ -22,8 +23,9 @@ public class GitToolService {
      * args:
      *   repoPath : Git 저장소 루트 경로 (예: "C:/workspace/my-project")
      */
-    @McpTool(
-        name = "listBranches",
+	
+	@McpTool(
+        name = "list-branches",
         description = "주어진 Git 저장소 경로의 로컬 브랜치 목록을 반환합니다."
     )
     public List<String> listBranches(Map<String, Object> args) throws Exception {
@@ -47,5 +49,6 @@ public class GitToolService {
                     .toList();
         }
     }
+	
 }
 
